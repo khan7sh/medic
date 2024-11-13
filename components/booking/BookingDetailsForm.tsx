@@ -24,6 +24,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import Link from 'next/link'
+import { createBooking } from '@/services/bookingService'
+import { useToast } from '@/hooks/use-toast'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -44,6 +46,7 @@ const formSchema = z.object({
 export default function BookingDetailsForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { toast } = useToast()
   
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
@@ -58,8 +61,41 @@ export default function BookingDetailsForm() {
     },
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    router.push(`/booking/confirmation?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(location || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const bookingData = {
+        service_id: serviceId || '',
+        service_title: decodeURIComponent(serviceTitle || ''),
+        location: decodeURIComponent(location || ''),
+        date: searchParams.get('date') || '',
+        time: searchParams.get('time') || '',
+        price: Number(servicePrice) || 0,
+        first_name: values.firstName,
+        last_name: values.lastName,
+        date_of_birth: values.dateOfBirth,
+        email: values.email,
+        phone: values.phone,
+        postcode: values.postcode,
+        license: values.license,
+        vehicle_type: values.vehicleType,
+        employer: values.employer,
+        voucher_code: values.voucherCode,
+        hear_about_us: values.hearAboutUs,
+        marketing_consent: values.marketingConsent || false
+      }
+
+      console.log('Attempting to create booking with data:', bookingData)
+      await createBooking(bookingData)
+      
+      router.push(`/booking/confirmation?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(location || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
+    } catch (error) {
+      console.error('Booking error:', error)
+      toast({
+        title: "Booking Failed",
+        description: error instanceof Error ? error.message : "There was an error creating your booking. Please try again.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleBack = () => {
