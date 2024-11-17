@@ -41,7 +41,7 @@ export default function AppointedPage() {
 
   useEffect(() => {
     fetchBookings()
-  }, [])
+  }, [fetchBookings])
 
   async function fetchBookings() {
     try {

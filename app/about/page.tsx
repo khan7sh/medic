@@ -68,7 +68,7 @@ export default function About() {
                     Founded with a vision to make driver medical assessments more accessible and affordable, MedicalD4 has grown to become one of the UK's leading providers of medical assessment services.
                   </p>
                   <p>
-                    We understand the vital role that professional drivers play in keeping our economy moving, and we're committed to providing efficient, high-quality medical assessments that meet all regulatory requirements.
+                    We understand the vital role that professional drivers play in keeping our economy moving, and we&apos;re committed to providing efficient, high-quality medical assessments that meet all regulatory requirements.
                   </p>
                   <p>
                     Our network of GMC-registered doctors and state-of-the-art facilities ensures that every driver receives the highest standard of medical assessment, with the convenience and affordability they deserve.

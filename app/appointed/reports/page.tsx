@@ -63,7 +63,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     fetchStats()
-  }, [timeframe])
+  }, [fetchStats])
 
   async function fetchStats() {
     // Calculate date range based on timeframe
