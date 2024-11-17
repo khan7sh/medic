@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { 
@@ -10,8 +10,7 @@ import {
   LogOut
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useSupabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -19,7 +18,6 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
-  const { supabase } = useSupabase()
   const router = useRouter()
 
   const navigation = [
@@ -42,6 +40,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname === '/appointed/manage'
     }
   ]
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/auth/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -71,10 +78,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Button 
             variant="ghost" 
             className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-primary/10"
-            onClick={async () => {
-              await supabase.auth.signOut()
-              router.push('/auth/login')
-            }}
+            onClick={handleLogout}
           >
             <LogOut className="h-5 w-5 mr-2" />
             Logout
