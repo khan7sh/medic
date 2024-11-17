@@ -27,17 +27,24 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // First attempt authentication
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: 'info@medicald4.com',
+        password: 'medicalsad',
       })
 
-      if (error) throw error
+      if (error) {
+        console.error('Authentication error:', error)
+        throw new Error('Authentication failed')
+      }
 
-      // Check if user has admin role
+      // Then check the user role
       const userRole = data.user?.user_metadata?.role
+      console.log('User metadata:', data.user?.user_metadata)
+      
       if (userRole !== 'admin') {
-        throw new Error('Unauthorized access')
+        console.error('Role check failed:', userRole)
+        throw new Error('Unauthorized access: Invalid role')
       }
 
       toast({
@@ -48,9 +55,10 @@ export default function LoginPage() {
       router.push('/appointed')
       router.refresh()
     } catch (error) {
+      console.error('Login error:', error)
       toast({
         title: 'Error',
-        description: 'Invalid credentials or unauthorized access',
+        description: error.message || 'Invalid credentials or unauthorized access',
         variant: 'destructive',
       })
     } finally {
