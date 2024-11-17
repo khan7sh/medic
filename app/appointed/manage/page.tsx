@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Switch } from '@/components/ui/switch'
+import { TimePicker } from '@/components/ui/time-picker'
 import {
   Select,
   SelectContent,
@@ -16,32 +17,42 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
+import { Clock, Calendar as CalendarIcon, X } from 'lucide-react'
+
+interface LocationFreeze {
+  id: string
+  location_id: string
+  date: string
+  start_time?: string
+  end_time?: string
+  is_full_day: boolean
+}
 
 interface Service {
   id: string
-  service_code: string
   title: string
-  description: string | null
   price: number
   duration: string
   isAvailable: boolean
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 interface Location {
   id: string
   name: string
-  unavailable_dates: string[]
+  freezes: LocationFreeze[]
 }
 
 export default function ManagePage() {
   const [services, setServices] = useState<Service[]>([])
   const [locations, setLocations] = useState<Location[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string>('')
-  const [selectedDates, setSelectedDates] = useState<Date[]>([])
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
+  const [isFullDay, setIsFullDay] = useState(true)
+  const [startTime, setStartTime] = useState<string>('')
+  const [endTime, setEndTime] = useState<string>('')
   const { toast } = useToast()
 
+  // Fetch services and locations with their freezes
   useEffect(() => {
     fetchServices()
     fetchLocations()
@@ -57,12 +68,30 @@ export default function ManagePage() {
   }
 
   async function fetchLocations() {
-    const { data, error } = await supabase
+    const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
       .select('*')
-    if (data) {
-      setLocations(data)
+
+    if (locationsError) {
+      console.error('Error fetching locations:', locationsError)
+      return
     }
+
+    const { data: freezesData, error: freezesError } = await supabase
+      .from('location_freezes')
+      .select('*')
+
+    if (freezesError) {
+      console.error('Error fetching freezes:', freezesError)
+      return
+    }
+
+    const locationsWithFreezes = locationsData.map(location => ({
+      ...location,
+      freezes: freezesData.filter(freeze => freeze.location_id === location.id)
+    }))
+
+    setLocations(locationsWithFreezes)
   }
 
   async function toggleServiceAvailability(serviceId: string, isAvailable: boolean) {
@@ -91,29 +120,60 @@ export default function ManagePage() {
     }
   }
 
-  async function updateLocationAvailability() {
-    if (!selectedLocation || selectedDates.length === 0) return
+  async function addLocationFreeze() {
+    if (!selectedLocation || !selectedDate) return
 
     try {
-      const formattedDates = selectedDates.map(date => format(date, 'yyyy-MM-dd'))
-      
+      const freezeData = {
+        location_id: selectedLocation,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        start_time: isFullDay ? null : startTime,
+        end_time: isFullDay ? null : endTime,
+        is_full_day: isFullDay
+      }
+
       const { error } = await supabase
-        .from('location_availability')
-        .upsert({
-          location_id: selectedLocation,
-          unavailable_dates: formattedDates
-        })
+        .from('location_freezes')
+        .insert([freezeData])
 
       if (error) throw error
 
       toast({
-        title: 'Availability Updated',
-        description: 'Location availability has been updated successfully',
+        title: 'Location Frozen',
+        description: `Location has been frozen for ${isFullDay ? 'the entire day' : 'the selected time period'}`,
       })
+
+      // Refresh locations
+      fetchLocations()
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to update location availability',
+        description: 'Failed to freeze location',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  async function removeLocationFreeze(freezeId: string) {
+    try {
+      const { error } = await supabase
+        .from('location_freezes')
+        .delete()
+        .eq('id', freezeId)
+
+      if (error) throw error
+
+      toast({
+        title: 'Freeze Removed',
+        description: 'Location freeze has been removed',
+      })
+
+      // Refresh locations
+      fetchLocations()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to remove freeze',
         variant: 'destructive',
       })
     }
@@ -150,7 +210,7 @@ export default function ManagePage() {
             </CardContent>
           </Card>
 
-          {/* Location Availability Management */}
+          {/* Location Freeze Management */}
           <Card>
             <CardHeader>
               <CardTitle>Manage Location Availability</CardTitle>
@@ -170,16 +230,70 @@ export default function ManagePage() {
                   </SelectContent>
                 </Select>
 
-                <Calendar
-                  mode="multiple"
-                  selected={selectedDates}
-                  onSelect={setSelectedDates}
-                  className="rounded-md border"
-                />
+                <div className="space-y-4">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-md border"
+                  />
 
-                <Button onClick={updateLocationAvailability}>
-                  Update Availability
-                </Button>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={isFullDay}
+                      onCheckedChange={setIsFullDay}
+                    />
+                    <span>Freeze entire day</span>
+                  </div>
+
+                  {!isFullDay && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Start Time</label>
+                        <TimePicker value={startTime} onChange={setStartTime} />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">End Time</label>
+                        <TimePicker value={endTime} onChange={setEndTime} />
+                      </div>
+                    </div>
+                  )}
+
+                  <Button onClick={addLocationFreeze}>
+                    Freeze Location
+                  </Button>
+                </div>
+
+                {/* Active Freezes */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-4">Active Freezes</h3>
+                  <div className="space-y-2">
+                    {locations.map(location => (
+                      <div key={location.id}>
+                        {location.freezes.map(freeze => (
+                          <div key={freeze.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div>
+                              <p className="font-medium">{location.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {format(new Date(freeze.date), 'dd MMM yyyy')}
+                                {freeze.is_full_day 
+                                  ? ' - Full Day'
+                                  : ` - ${freeze.start_time} to ${freeze.end_time}`}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeLocationFreeze(freeze.id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
