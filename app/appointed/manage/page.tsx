@@ -298,9 +298,7 @@ export default function ManagePage() {
                                   ? ' - Full Day'
                                   : ` - ${freeze.start_time} to ${freeze.end_time}`}
                               </p>
-                              <p className="text-sm text-muted-foreground">
-                                Reason: {freeze.reason}
-                              </p>
+                              <p className="text-sm text-red-500">Reason: {freeze.reason}</p>
                             </div>
                             <Button
                               variant="ghost"

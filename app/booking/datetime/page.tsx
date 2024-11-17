@@ -18,7 +18,7 @@ import ProgressSteps from '@/components/booking/ProgressSteps'
 import BookingLayout from '@/components/booking/bookingLayout'
 import { LocationFreeze } from '@/types'
 import { supabase } from '@/lib/supabase'
-import { toast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 
 const timeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -32,6 +32,7 @@ export default function DateTimePage() {
   const [date, setDate] = useState<Date>()
   const [timeSlot, setTimeSlot] = useState('')
   const [frozenInfo, setFrozenInfo] = useState<LocationFreeze | null>(null)
+  const { toast } = useToast()
 
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
@@ -49,28 +50,36 @@ export default function DateTimePage() {
     }
   }
 
-  async function checkLocationAvailability(date: Date, location: string) {
+  async function checkLocationAvailability(date: Date, locationId: string) {
     const { data: freezes, error } = await supabase
       .from('location_freezes')
       .select('*')
-      .eq('location_id', location)
+      .eq('location_id', locationId)
       .eq('date', format(date, 'yyyy-MM-dd'))
-      .single()
 
-    if (freezes) {
-      setFrozenInfo(freezes)
+    if (error) {
+      console.error('Error checking freezes:', error)
+      return true
+    }
+
+    if (freezes && freezes.length > 0) {
+      const freeze = freezes[0]
       toast({
         title: 'Location Unavailable',
-        description: `This location is unavailable: ${freezes.reason}`,
+        description: `This location is unavailable: ${freeze.reason}`,
         variant: 'destructive',
       })
       return false
     }
+
     return true
   }
 
   const handleDateSelect = async (date: Date) => {
-    const isAvailable = await checkLocationAvailability(date, location)
+    const locationId = searchParams.get('location')
+    if (!locationId) return
+
+    const isAvailable = await checkLocationAvailability(date, locationId)
     if (isAvailable) {
       setDate(date)
     }
