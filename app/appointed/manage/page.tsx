@@ -21,10 +21,12 @@ interface Service {
   id: string
   service_code: string
   title: string
-  description: string
+  description: string | null
   price: number
   duration: string
   isAvailable: boolean
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 interface Location {
@@ -50,7 +52,7 @@ export default function ManagePage() {
       .from('services')
       .select('*')
     if (data) {
-      setServices(data)
+      setServices(data as Service[])
     }
   }
 
