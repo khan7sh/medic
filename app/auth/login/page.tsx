@@ -27,10 +27,9 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // First attempt authentication
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'info@medicald4.com',
-        password: 'medicalsad',
+        email,
+        password,
       })
 
       if (error) {
@@ -38,12 +37,12 @@ export default function LoginPage() {
         throw new Error('Authentication failed')
       }
 
-      // Then check the user role
-      const userRole = data.user?.user_metadata?.role
+      console.log('User data:', data.user)
       console.log('User metadata:', data.user?.user_metadata)
-      
+
+      const userRole = data.user?.user_metadata?.role
       if (userRole !== 'admin') {
-        console.error('Role check failed:', userRole)
+        console.error('Role check failed. Current role:', userRole)
         throw new Error('Unauthorized access: Invalid role')
       }
 
