@@ -73,6 +73,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.8.1",
     "supabase": "^1.219.2"
   }
 }
