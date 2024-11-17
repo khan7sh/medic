@@ -18,6 +18,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { format } from 'date-fns'
 import { Clock, Calendar as CalendarIcon, X } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 interface LocationFreeze {
   id: string
@@ -26,6 +27,7 @@ interface LocationFreeze {
   start_time?: string
   end_time?: string
   is_full_day: boolean
+  reason: string
 }
 
 interface Service {
@@ -50,6 +52,7 @@ export default function ManagePage() {
   const [isFullDay, setIsFullDay] = useState(true)
   const [startTime, setStartTime] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
+  const [freezeReason, setFreezeReason] = useState('')
   const { toast } = useToast()
 
   // Fetch services and locations with their freezes
@@ -121,7 +124,14 @@ export default function ManagePage() {
   }
 
   async function addLocationFreeze() {
-    if (!selectedLocation || !selectedDate) return
+    if (!selectedLocation || !selectedDate || !freezeReason) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all required fields',
+        variant: 'destructive',
+      })
+      return
+    }
 
     try {
       const freezeData = {
@@ -129,7 +139,8 @@ export default function ManagePage() {
         date: format(selectedDate, 'yyyy-MM-dd'),
         start_time: isFullDay ? null : startTime,
         end_time: isFullDay ? null : endTime,
-        is_full_day: isFullDay
+        is_full_day: isFullDay,
+        reason: freezeReason
       }
 
       const { error } = await supabase
@@ -138,12 +149,12 @@ export default function ManagePage() {
 
       if (error) throw error
 
+      setFreezeReason('') // Reset reason
       toast({
         title: 'Location Frozen',
         description: `Location has been frozen for ${isFullDay ? 'the entire day' : 'the selected time period'}`,
       })
 
-      // Refresh locations
       fetchLocations()
     } catch (error) {
       toast({
@@ -259,6 +270,13 @@ export default function ManagePage() {
                     </div>
                   )}
 
+                  <Input
+                    placeholder="Reason for freezing (e.g., Bank Holiday, Staff Training)"
+                    value={freezeReason}
+                    onChange={(e) => setFreezeReason(e.target.value)}
+                    className="w-full"
+                  />
+
                   <Button onClick={addLocationFreeze}>
                     Freeze Location
                   </Button>
@@ -279,6 +297,9 @@ export default function ManagePage() {
                                 {freeze.is_full_day 
                                   ? ' - Full Day'
                                   : ` - ${freeze.start_time} to ${freeze.end_time}`}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Reason: {freeze.reason}
                               </p>
                             </div>
                             <Button

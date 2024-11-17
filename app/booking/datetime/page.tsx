@@ -16,6 +16,9 @@ import {
 } from '@/components/ui/select'
 import ProgressSteps from '@/components/booking/ProgressSteps'
 import BookingLayout from '@/components/booking/bookingLayout'
+import { LocationFreeze } from '@/types'
+import { supabase } from '@/lib/supabase'
+import { toast } from '@/components/ui/use-toast'
 
 const timeSlots = [
   '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -28,6 +31,7 @@ export default function DateTimePage() {
   const searchParams = useSearchParams()
   const [date, setDate] = useState<Date>()
   const [timeSlot, setTimeSlot] = useState('')
+  const [frozenInfo, setFrozenInfo] = useState<LocationFreeze | null>(null)
 
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
@@ -42,6 +46,33 @@ export default function DateTimePage() {
     if (date && timeSlot) {
       const formattedDate = format(date, 'dd MMMM yyyy')
       router.push(`/booking/details?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(location || '')}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(timeSlot)}`)
+    }
+  }
+
+  async function checkLocationAvailability(date: Date, location: string) {
+    const { data: freezes, error } = await supabase
+      .from('location_freezes')
+      .select('*')
+      .eq('location_id', location)
+      .eq('date', format(date, 'yyyy-MM-dd'))
+      .single()
+
+    if (freezes) {
+      setFrozenInfo(freezes)
+      toast({
+        title: 'Location Unavailable',
+        description: `This location is unavailable: ${freezes.reason}`,
+        variant: 'destructive',
+      })
+      return false
+    }
+    return true
+  }
+
+  const handleDateSelect = async (date: Date) => {
+    const isAvailable = await checkLocationAvailability(date, location)
+    if (isAvailable) {
+      setDate(date)
     }
   }
 
@@ -82,7 +113,7 @@ export default function DateTimePage() {
             <Calendar
               mode="single"
               selected={date}
-              onSelect={setDate}
+              onSelect={handleDateSelect}
               className="rounded-md border"
               disabled={(date) => date < new Date()}
             />
