@@ -20,7 +20,7 @@ const locations = [
   { id: 'newcastle', name: 'Newcastle Under Lyme ST5 2JG', postcode: 'ST5 2JG' },
   { id: 'peterborough', name: 'Peterborough, PE2 6XU', postcode: 'PE2 6XU' },
   { id: 'plymouth', name: 'Plymouth PL99JB', postcode: 'PL9 9JB' },
-  { id: 'southampton', name: 'Southampton SO16 4NW', postcode: 'SO16 4NW' },
+  { id: 'southampton', name: 'Southampton SO16 4NW', postcode: 'SO16 4NW' }
 ]
 
 const clinicDetails = locations.map(location => ({
@@ -32,7 +32,7 @@ const clinicDetails = locations.map(location => ({
   image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2035&q=80'
 }))
 
-interface ClinicWithDistance extends (typeof clinicDetails)[0] {
+interface ClinicWithDistance extends (typeof clinicDetails)[number] {
   distance?: number;
 }
 
