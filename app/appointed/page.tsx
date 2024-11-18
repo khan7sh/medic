@@ -16,6 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { Download, Mail, Phone, Check, X, CheckCircle, Users, Clock, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface BookingData {
   id: string
@@ -177,7 +178,7 @@ export default function AppointedPage() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Bookings Dashboard</h1>
         
         {/* Filters */}
@@ -273,9 +274,8 @@ export default function AppointedPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-2 text-muted-foreground">Loading bookings...</p>
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
             ) : filteredBookings.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -283,107 +283,109 @@ export default function AppointedPage() {
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead className="bg-secondary">
-                      <tr>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Date & Time</th>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Customer</th>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Service</th>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Location</th>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Status</th>
-                        <th className="px-6 py-4 text-left font-medium text-muted-foreground">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredBookings.map((booking) => (
-                        <tr 
-                          key={booking.id} 
-                          className="border-b hover:bg-muted/50 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            {booking.date} {booking.time}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>{booking.first_name} {booking.last_name}</div>
-                            <div className="text-sm text-muted-foreground">{booking.email}</div>
-                          </td>
-                          <td className="px-6 py-4">{booking.service_title}</td>
-                          <td className="px-6 py-4">{booking.location}</td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                              ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800 border border-green-200' : ''}
-                              ${booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : ''}
-                              ${booking.status === 'cancelled' ? 'bg-red-100 text-red-800 border border-red-200' : ''}
-                              ${booking.status === 'completed' ? 'bg-blue-100 text-blue-800 border border-blue-200' : ''}
-                            `}>
-                              <span className={`w-1.5 h-1.5 rounded-full mr-2
-                                ${booking.status === 'confirmed' ? 'bg-green-600' : ''}
-                                ${booking.status === 'pending' ? 'bg-yellow-600' : ''}
-                                ${booking.status === 'cancelled' ? 'bg-red-600' : ''}
-                                ${booking.status === 'completed' ? 'bg-blue-600' : ''}
-                              `} />
-                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 w-8 p-0"
-                                onClick={() => window.location.href = `mailto:${booking.email}`}
-                              >
-                                <Mail className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 w-8 p-0"
-                                onClick={() => window.location.href = `tel:${booking.phone}`}
-                              >
-                                <Phone className="h-4 w-4" />
-                              </Button>
-                              <div className="border-l mx-2 h-4" />
-                              {booking.status === 'pending' && (
-                                <>
+                <ScrollArea className="w-full overflow-auto">
+                  <div className="min-w-[1200px]">
+                    <table className="w-full border-collapse">
+                      <thead className="bg-secondary">
+                        <tr>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Date & Time</th>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Customer</th>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Service</th>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Location</th>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Status</th>
+                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredBookings.map((booking) => (
+                          <tr 
+                            key={booking.id} 
+                            className="border-b hover:bg-muted/50 transition-colors"
+                          >
+                            <td className="px-6 py-4">
+                              {booking.date} {booking.time}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div>{booking.first_name} {booking.last_name}</div>
+                              <div className="text-sm text-muted-foreground">{booking.email}</div>
+                            </td>
+                            <td className="px-6 py-4">{booking.service_title}</td>
+                            <td className="px-6 py-4">{booking.location}</td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800 border border-green-200' : ''}
+                                ${booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : ''}
+                                ${booking.status === 'cancelled' ? 'bg-red-100 text-red-800 border border-red-200' : ''}
+                                ${booking.status === 'completed' ? 'bg-blue-100 text-blue-800 border border-blue-200' : ''}
+                              `}>
+                                <span className={`w-1.5 h-1.5 rounded-full mr-2
+                                  ${booking.status === 'confirmed' ? 'bg-green-600' : ''}
+                                  ${booking.status === 'pending' ? 'bg-yellow-600' : ''}
+                                  ${booking.status === 'cancelled' ? 'bg-red-600' : ''}
+                                  ${booking.status === 'completed' ? 'bg-blue-600' : ''}
+                                `} />
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => window.location.href = `mailto:${booking.email}`}
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => window.location.href = `tel:${booking.phone}`}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                                <div className="border-l mx-2 h-4" />
+                                {booking.status === 'pending' && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      className="bg-green-600 hover:bg-green-700 text-white"
+                                      onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                    >
+                                      <Check className="h-4 w-4 mr-1" />
+                                      Confirm
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                                    >
+                                      <X className="h-4 w-4 mr-1" />
+                                      Cancel
+                                    </Button>
+                                  </>
+                                )}
+                                {booking.status === 'confirmed' && (
                                   <Button
                                     size="sm"
                                     variant="default"
-                                    className="bg-green-600 hover:bg-green-700 text-white"
-                                    onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    onClick={() => updateBookingStatus(booking.id, 'completed')}
                                   >
-                                    <Check className="h-4 w-4 mr-1" />
-                                    Confirm
+                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                    Complete
                                   </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => updateBookingStatus(booking.id, 'cancelled')}
-                                  >
-                                    <X className="h-4 w-4 mr-1" />
-                                    Cancel
-                                  </Button>
-                                </>
-                              )}
-                              {booking.status === 'confirmed' && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                                  onClick={() => updateBookingStatus(booking.id, 'completed')}
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Complete
-                                </Button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </ScrollArea>
                 
                 {/* Pagination */}
                 <div className="mt-4 flex items-center justify-between">

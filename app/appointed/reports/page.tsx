@@ -167,29 +167,8 @@ export default function ReportsPage() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-10">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Reports & Analytics</h1>
-          <div className="flex gap-4">
-            <Select value={timeframe} onValueChange={setTimeframe}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select timeframe" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7days">Last 7 Days</SelectItem>
-                <SelectItem value="30days">Last 30 Days</SelectItem>
-                <SelectItem value="90days">Last 90 Days</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={exportReport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
@@ -231,13 +210,13 @@ export default function ReportsPage() {
         </div>
 
         {/* Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <Card className="w-full">
             <CardHeader>
               <CardTitle>Daily Bookings</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
+              <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dailyBookings}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -251,12 +230,12 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="w-full">
             <CardHeader>
               <CardTitle>Services Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
+              <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
