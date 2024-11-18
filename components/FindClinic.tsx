@@ -32,7 +32,9 @@ const clinicDetails = locations.map(location => ({
   image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2035&q=80'
 }))
 
-interface ClinicWithDistance extends (typeof clinicDetails)[number] {
+type Clinic = (typeof clinicDetails)[number]
+
+interface ClinicWithDistance extends Clinic {
   distance?: number;
 }
 
