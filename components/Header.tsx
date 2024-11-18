@@ -49,7 +49,10 @@ export default function Header() {
           </nav>
 
           {/* Book Now Button - Desktop */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center space-x-4">
+            <Button asChild variant="outline" size="lg">
+              <Link href="/contact">Contact Us</Link>
+            </Button>
             <Button asChild size="lg" className="px-8 py-6 text-base font-medium">
               <Link href="/booking/services">Book Now</Link>
             </Button>
@@ -104,6 +107,13 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
+              </Link>
+              <Link 
+                href="/contact" 
+                className="px-6 py-4 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contact Us
               </Link>
             </div>
             <div className="mt-6 px-6">
