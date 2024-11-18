@@ -22,24 +22,24 @@ export default function BookingDetailsPage() {
       title="Complete Your Booking"
       description="Fill in your details to confirm your appointment"
     >
-      <Card className="mb-8">
+      <Card className="mb-6 sm:mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <FileText className="h-6 w-6 text-primary" />
+          <CardTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+            <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             <span>Booking Summary</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center text-muted-foreground">
-            <FileText className="h-5 w-5 mr-2 text-primary" />
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="flex items-center text-sm sm:text-base text-muted-foreground">
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
             <span>Medical Type: {decodeURIComponent(serviceTitle || '')}</span>
           </div>
-          <div className="flex items-center text-muted-foreground">
-            <MapPin className="h-5 w-5 mr-2 text-primary" />
+          <div className="flex items-center text-sm sm:text-base text-muted-foreground">
+            <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
             <span>Location: {decodeURIComponent(locationName || '')}</span>
           </div>
-          <div className="flex items-center text-muted-foreground">
-            <Calendar className="h-5 w-5 mr-2 text-primary" />
+          <div className="flex items-center text-sm sm:text-base text-muted-foreground">
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
             <span>Date & Time: {date} {time}</span>
           </div>
         </CardContent>

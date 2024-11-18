@@ -114,29 +114,29 @@ export default function DateTimePage() {
       </Card>
 
       {/* Date and Time Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+        <Card className="w-full">
           <CardHeader>
-            <CardTitle>Select Date</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Select Date</CardTitle>
           </CardHeader>
           <CardContent>
             <Calendar
               mode="single"
               selected={date}
               onSelect={handleDateSelect}
-              className="rounded-md border"
+              className="rounded-md border w-full max-w-[350px] mx-auto"
               disabled={(date) => date < new Date()}
             />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="w-full">
           <CardHeader>
-            <CardTitle>Select Time</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Select Time</CardTitle>
           </CardHeader>
           <CardContent>
             <Select value={timeSlot} onValueChange={setTimeSlot}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Choose a time slot" />
               </SelectTrigger>
               <SelectContent>
@@ -151,24 +151,24 @@ export default function DateTimePage() {
         </Card>
       </div>
 
-      <div className="flex justify-between mt-8">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
         <Button
           variant="outline"
           size="lg"
           onClick={handleBack}
-          className="px-8 py-6 text-lg"
+          className="w-full sm:w-auto px-4 sm:px-8 py-4 sm:py-6 text-base sm:text-lg"
         >
-          <ArrowLeft className="mr-2 h-5 w-5" />
+          <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
           Back to Location
         </Button>
         <Button
           size="lg"
           onClick={handleBooking}
           disabled={!date || !timeSlot}
-          className="px-8 py-6 text-lg"
+          className="w-full sm:w-auto px-4 sm:px-8 py-4 sm:py-6 text-base sm:text-lg"
         >
           Confirm Booking
-          <Clock className="ml-2 h-5 w-5" />
+          <Clock className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </div>
     </BookingLayout>

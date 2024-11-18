@@ -122,7 +122,7 @@ export default function ServicesPage() {
       title="Select Your Service"
       description="Choose the type of medical assessment you need"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
         {services.map((service) => (
           <ServiceCard
             key={service.id}
