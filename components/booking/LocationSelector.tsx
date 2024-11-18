@@ -71,6 +71,11 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
     }
   }
 
+  const handleLocationSelect = (locationId: string) => {
+    const selectedLocation = locations.find(loc => loc.id === locationId)
+    onLocationChange(locationId, selectedLocation?.name || '')
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -81,7 +86,7 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
         <CardDescription>Select your preferred assessment location</CardDescription>
       </CardHeader>
       <CardContent>
-        <Select value={selectedLocation} onValueChange={onLocationChange}>
+        <Select value={selectedLocation} onValueChange={handleLocationSelect}>
           <SelectTrigger>
             <SelectValue placeholder="Select location" />
           </SelectTrigger>
@@ -91,22 +96,8 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
                 key={location.id}
                 value={location.id}
                 disabled={location.isFrozen}
-                className="relative"
               >
-                <div className="flex items-center justify-between w-full">
-                  <span>{location.name}</span>
-                  {location.isFrozen && (
-                    <div className="flex items-center text-destructive text-sm">
-                      <AlertCircle className="h-4 w-4 mr-1" />
-                      <span>Temporarily Unavailable</span>
-                    </div>
-                  )}
-                </div>
-                {location.isFrozen && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {location.freezeReason}
-                  </p>
-                )}
+                {location.name}
               </SelectItem>
             ))}
           </SelectContent>

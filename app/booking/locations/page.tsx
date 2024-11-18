@@ -12,10 +12,16 @@ export default function LocationsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selectedLocation, setSelectedLocation] = useState('')
+  const [selectedLocationName, setSelectedLocationName] = useState('')
 
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
+
+  const handleLocationChange = (locationId: string, locationName: string) => {
+    setSelectedLocation(locationId)
+    setSelectedLocationName(locationName)
+  }
 
   const handleBack = () => {
     router.push(`/booking/services?service=${serviceId}`)
@@ -23,7 +29,7 @@ export default function LocationsPage() {
 
   const handleNext = () => {
     if (selectedLocation) {
-      router.push(`/booking/datetime?service=${serviceId}&price=${servicePrice}&title=${serviceTitle}&location=${encodeURIComponent(selectedLocation)}`)
+      router.push(`/booking/datetime?service=${serviceId}&price=${servicePrice}&title=${serviceTitle}&location=${selectedLocation}&locationName=${encodeURIComponent(selectedLocationName)}`)
     }
   }
 
@@ -45,7 +51,7 @@ export default function LocationsPage() {
 
       <LocationSelector
         selectedLocation={selectedLocation}
-        onLocationChange={setSelectedLocation}
+        onLocationChange={handleLocationChange}
       />
 
       <div className="flex justify-between mt-8">

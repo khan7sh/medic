@@ -37,7 +37,8 @@ export default function DateTimePage() {
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
-  const location = searchParams.get('location')
+  const locationId = searchParams.get('location')
+  const locationName = searchParams.get('locationName')
 
   const handleBack = () => {
     router.push(`/booking/locations?service=${serviceId}&price=${servicePrice}&title=${serviceTitle}`)
@@ -46,7 +47,7 @@ export default function DateTimePage() {
   const handleBooking = () => {
     if (date && timeSlot) {
       const formattedDate = format(date, 'dd MMMM yyyy')
-      router.push(`/booking/details?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(location || '')}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(timeSlot)}`)
+      router.push(`/booking/details?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${locationId}&locationName=${encodeURIComponent(locationName || '')}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(timeSlot)}`)
     }
   }
 
@@ -106,7 +107,7 @@ export default function DateTimePage() {
             </div>
             <div className="flex items-center">
               <MapPin className="h-5 w-5 text-primary mr-2" />
-              <span>{decodeURIComponent(location || '')}</span>
+              <span>{decodeURIComponent(locationName || '')}</span>
             </div>
           </div>
         </CardContent>

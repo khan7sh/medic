@@ -63,10 +63,14 @@ export default function BookingDetailsForm() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const locationId = searchParams.get('location')
+      const locationName = searchParams.get('locationName')
+
       const bookingData = {
         service_id: serviceId || '',
         service_title: decodeURIComponent(serviceTitle || ''),
-        location: decodeURIComponent(location || ''),
+        location_id: locationId,
+        location: locationName,
         date: searchParams.get('date') || '',
         time: searchParams.get('time') || '',
         price: Number(servicePrice) || 0,
