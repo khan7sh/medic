@@ -40,11 +40,11 @@ export default function LocationsPage() {
       description="Select a convenient clinic location for your assessment"
     >
       {serviceTitle && servicePrice && (
-        <div className="bg-secondary/30 rounded-lg p-6 mb-8">
-          <h3 className="text-lg font-semibold mb-2">Selected Service:</h3>
-          <div className="flex items-center justify-between">
-            <span className="text-lg">{decodeURIComponent(serviceTitle)}</span>
-            <span className="text-primary font-semibold">£{servicePrice}</span>
+        <div className="bg-secondary/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold mb-2">Selected Service:</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+            <span className="text-base sm:text-lg break-words">{decodeURIComponent(serviceTitle)}</span>
+            <span className="text-primary font-semibold text-base sm:text-lg">£{servicePrice}</span>
           </div>
         </div>
       )}
@@ -54,24 +54,24 @@ export default function LocationsPage() {
         onLocationChange={handleLocationChange}
       />
 
-      <div className="flex justify-between mt-8">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8">
         <Button
           variant="outline"
           size="lg"
           onClick={handleBack}
-          className="px-8 py-6 text-lg"
+          className="w-full sm:w-auto px-4 sm:px-8 py-4 sm:py-6 text-base sm:text-lg"
         >
-          <ArrowLeft className="mr-2 h-5 w-5" />
+          <ArrowLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
           Back to Services
         </Button>
         <Button
           size="lg"
           onClick={handleNext}
           disabled={!selectedLocation}
-          className="px-8 py-6 text-lg"
+          className="w-full sm:w-auto px-4 sm:px-8 py-4 sm:py-6 text-base sm:text-lg"
         >
           Book Appointment
-          <Calendar className="ml-2 h-5 w-5" />
+          <Calendar className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
       </div>
     </BookingLayout>
