@@ -10,7 +10,6 @@ import Image from 'next/image'
 import { calculateDistance } from '@/utils/distance'
 import { useToast } from '@/hooks/use-toast'
 
-// Using the same locations data
 const locations = [
   { id: 'bedford', name: 'Bedford MK40 1UH', postcode: 'MK40 1UH' },
   { id: 'birmingham', name: 'Birmingham, B66 4TB', postcode: 'B66 4TB' },
@@ -33,7 +32,7 @@ const clinicDetails = locations.map(location => ({
 }))
 
 interface ClinicWithDistance extends (typeof clinicDetails)[number] {
-  distance?: number;
+  distance?: number
 }
 
 export default function FindClinic() {
