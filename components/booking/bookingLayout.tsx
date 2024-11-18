@@ -2,42 +2,36 @@
 
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import ProgressSteps from '@/components/booking/ProgressSteps'
+import ProgressSteps from './ProgressSteps'
 
 interface BookingLayoutProps {
-  children: React.ReactNode;
-  currentStep: number;
-  title: string;
-  description?: string;
+  children: React.ReactNode
+  currentStep: number
+  title: string
+  description: string
 }
 
-export default function BookingLayout({ 
-  children, 
-  currentStep, 
-  title, 
-  description 
+export default function BookingLayout({
+  children,
+  currentStep,
+  title,
+  description
 }: BookingLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8 sm:mb-12">
             <ProgressSteps currentStep={currentStep} />
-            
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-extrabold gradient-text mb-4">
-                {title}
-              </h1>
-              {description && (
-                <p className="text-lg text-muted-foreground">
-                  {description}
-                </p>
-              )}
-            </div>
-            
-            {children}
           </div>
+          
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-2xl sm:text-4xl font-bold mb-3">{title}</h1>
+            <p className="text-base sm:text-lg text-muted-foreground">{description}</p>
+          </div>
+
+          {children}
         </div>
       </main>
       <Footer />

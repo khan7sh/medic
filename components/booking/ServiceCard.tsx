@@ -45,40 +45,31 @@ export default function ServiceCard({
   }
 
   return (
-    <Card 
-      className={`cursor-pointer transition-all duration-300 ${
-        isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'
-      }`}
-      onClick={handleClick}
-    >
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-3">
-          {IconComponent && <IconComponent className="h-6 w-6 text-primary" />}
-          <span>{service.title}</span>
-        </CardTitle>
-        <CardDescription>{service.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-2" />
-            {service.duration}
-          </div>
-          <div className="flex items-center font-medium text-foreground">
-            <PoundSterling className="h-4 w-4 mr-1" />
-            {service.price}
+    <div className={`p-4 sm:p-6 rounded-xl border-2 transition-all ${
+      isSelected ? 'border-primary' : 'border-border'
+    }`}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="p-3 bg-primary/10 rounded-lg">
+          <IconComponent className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+        </div>
+        
+        <div className="flex-1">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">{service.title}</h3>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">{service.description}</p>
+          
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            <span className="text-sm text-muted-foreground">Duration: {service.duration}</span>
+            <span className="text-lg font-semibold text-primary">£{service.price}</span>
           </div>
         </div>
-      </CardContent>
-      <CardFooter>
+        
         <Button 
-          className="w-full"
           onClick={handleBookClick}
+          className="w-full sm:w-auto mt-4 sm:mt-0"
         >
-          Select Service
-          <ArrowRight className="ml-2 h-5 w-5" />
+          Book Now
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   )
 }
