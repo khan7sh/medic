@@ -41,7 +41,7 @@ export default function Header() {
               About
             </Link>
             <Link 
-              href="#faq" 
+              href="/faq" 
               className="px-6 py-3 text-base font-medium text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
             >
               FAQ
@@ -99,7 +99,7 @@ export default function Header() {
                 About
               </Link>
               <Link 
-                href="#faq" 
+                href="/faq" 
                 className="px-6 py-4 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >

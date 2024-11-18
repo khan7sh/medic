@@ -41,9 +41,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname === '/appointed/manage'
     },
     {
+      name: 'Inquiries',
       href: '/admin/business-inquiries',
-      label: 'Business Inquiries',
-      icon: Building2
+      icon: Building2,
+      current: pathname === '/admin/business-inquiries'
     }
   ]
 

@@ -4,6 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import Link from 'next/link'
 
 const faqs = [
   {
@@ -30,7 +32,7 @@ export default function FAQ() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-extrabold text-center text-foreground mb-16">Frequently Asked Questions</h2>
         <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full mb-8">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger className="text-lg font-medium">{faq.question}</AccordionTrigger>
@@ -38,6 +40,11 @@ export default function FAQ() {
               </AccordionItem>
             ))}
           </Accordion>
+          <div className="text-center">
+            <Button asChild size="lg" variant="outline">
+              <Link href="/faq">View All FAQs</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
