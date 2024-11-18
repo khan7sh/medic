@@ -11,7 +11,8 @@ export default function BookingDetailsPage() {
   const router = useRouter()
 
   const serviceTitle = searchParams.get('title')
-  const location = searchParams.get('location')
+  const locationId = searchParams.get('location')
+  const locationName = searchParams.get('locationName')
   const date = searchParams.get('date')
   const time = searchParams.get('time')
 
@@ -35,7 +36,7 @@ export default function BookingDetailsPage() {
           </div>
           <div className="flex items-center text-muted-foreground">
             <MapPin className="h-5 w-5 mr-2 text-primary" />
-            <span>Location: {decodeURIComponent(location || '')}</span>
+            <span>Location: {decodeURIComponent(locationName || '')}</span>
           </div>
           <div className="flex items-center text-muted-foreground">
             <Calendar className="h-5 w-5 mr-2 text-primary" />

@@ -73,7 +73,8 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
 
   const handleLocationSelect = (locationId: string) => {
     const selectedLocation = locations.find(loc => loc.id === locationId)
-    onLocationChange(locationId, selectedLocation?.name || '')
+    const locationDisplay = selectedLocation ? `${selectedLocation.name} (${selectedLocation.postcode})` : ''
+    onLocationChange(locationId, locationDisplay)
   }
 
   return (
