@@ -30,14 +30,6 @@ interface LocationFreeze {
   reason: string
 }
 
-interface Service {
-  id: string
-  title: string
-  price: number
-  duration: string
-  isAvailable: boolean
-}
-
 interface Location {
   id: string
   name: string
@@ -45,7 +37,6 @@ interface Location {
 }
 
 export default function ManagePage() {
-  const [services, setServices] = useState<Service[]>([])
   const [locations, setLocations] = useState<Location[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
@@ -55,20 +46,9 @@ export default function ManagePage() {
   const [freezeReason, setFreezeReason] = useState('')
   const { toast } = useToast()
 
-  // Fetch services and locations with their freezes
   useEffect(() => {
-    fetchServices()
     fetchLocations()
   }, [])
-
-  async function fetchServices() {
-    const { data, error } = await supabase
-      .from('services')
-      .select('*')
-    if (data) {
-      setServices(data as Service[])
-    }
-  }
 
   async function fetchLocations() {
     const { data: locationsData, error: locationsError } = await supabase
@@ -95,32 +75,6 @@ export default function ManagePage() {
     }))
 
     setLocations(locationsWithFreezes)
-  }
-
-  async function toggleServiceAvailability(serviceId: string, isAvailable: boolean) {
-    try {
-      const { error } = await supabase
-        .from('services')
-        .update({ isAvailable })
-        .eq('id', serviceId)
-
-      if (error) throw error
-
-      setServices(services.map(service => 
-        service.id === serviceId ? { ...service, isAvailable } : service
-      ))
-
-      toast({
-        title: 'Service Updated',
-        description: `Service availability has been ${isAvailable ? 'enabled' : 'disabled'}`,
-      })
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update service availability',
-        variant: 'destructive',
-      })
-    }
   }
 
   async function addLocationFreeze() {
@@ -193,34 +147,9 @@ export default function ManagePage() {
   return (
     <AdminLayout>
       <div className="container mx-auto py-10">
-        <h1 className="text-3xl font-bold mb-8">Manage Services & Availability</h1>
+        <h1 className="text-3xl font-bold mb-8">Manage Location Availability</h1>
         
         <div className="grid gap-6">
-          {/* Services Management */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Manage Services</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {services.map((service) => (
-                  <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-medium">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        £{service.price} - {service.duration}
-                      </p>
-                    </div>
-                    <Switch
-                      checked={service.isAvailable}
-                      onCheckedChange={(checked) => toggleServiceAvailability(service.id, checked)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Location Freeze Management */}
           <Card>
             <CardHeader>
