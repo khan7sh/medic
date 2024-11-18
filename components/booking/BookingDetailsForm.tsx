@@ -63,14 +63,12 @@ export default function BookingDetailsForm() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const locationId = searchParams.get('location')
       const locationName = searchParams.get('locationName')
 
       const bookingData = {
         service_id: serviceId || '',
         service_title: decodeURIComponent(serviceTitle || ''),
-        location_id: locationId,
-        location: locationName,
+        location: decodeURIComponent(locationName || ''),
         date: searchParams.get('date') || '',
         time: searchParams.get('time') || '',
         price: Number(servicePrice) || 0,
@@ -91,7 +89,7 @@ export default function BookingDetailsForm() {
       console.log('Attempting to create booking with data:', bookingData)
       await createBooking(bookingData)
       
-      router.push(`/booking/confirmation?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(location || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
+      router.push(`/booking/confirmation?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
     } catch (error) {
       console.error('Booking error:', error)
       toast({
