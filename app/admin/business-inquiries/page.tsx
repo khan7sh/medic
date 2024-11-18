@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import AdminLayout from '../components/AdminLayout'
+import AdminLayout from '@/app/appointed/components/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Phone, Check, X } from 'lucide-react'
