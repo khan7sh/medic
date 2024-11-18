@@ -51,6 +51,22 @@ export default function Hero() {
                   Find A Clinic
                 </Link>
               </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg"
+              >
+                <a 
+                  href="https://d4drivers.uk/wp-content/uploads/2020/06/2022-D4-Medical-Form-Blank.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center"
+                >
+                  <Download className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  Download D4 Form
+                </a>
+              </Button>
             </div>
           </div>
         </div>
