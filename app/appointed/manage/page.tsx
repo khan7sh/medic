@@ -83,7 +83,16 @@ export default function ManagePage() {
   }
 
   async function addLocationFreeze() {
+    console.log('Selected Location:', selectedLocation)
+    console.log('Selected Date:', selectedDate)
+    console.log('Freeze Reason:', freezeReason)
+
     if (!selectedLocation || !selectedDate || !freezeReason) {
+      console.log('Missing fields:', {
+        location: !selectedLocation,
+        date: !selectedDate,
+        reason: !freezeReason
+      })
       toast({
         title: 'Error',
         description: 'Please fill in all required fields',
