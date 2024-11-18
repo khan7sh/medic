@@ -149,8 +149,8 @@ export default function ClinicsPage() {
                   key={clinic.id} 
                   className={`overflow-hidden transition-shadow duration-300 ${
                     clinic.distance && index === 0 
-                      ? 'border-2 border-primary'
-                      : ''
+                      ? 'ring-2 ring-primary shadow-lg transform hover:-translate-y-1' 
+                      : 'hover:shadow-xl'
                   }`}
                 >
                   <div className="relative h-48">
@@ -160,9 +160,24 @@ export default function ClinicsPage() {
                       layout="fill"
                       objectFit="cover"
                     />
+                    {clinic.distance && index === 0 && (
+                      <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Nearest
+                      </div>
+                    )}
                   </div>
                   <CardHeader>
                     <CardTitle>{clinic.fullName}</CardTitle>
+                    {clinic.distance && (
+                      <p className="text-lg font-semibold text-primary">
+                        {clinic.distance.toFixed(1)} miles away
+                        {index === 0 && (
+                          <span className="ml-2 text-sm font-normal text-muted-foreground">
+                            (Nearest location)
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
