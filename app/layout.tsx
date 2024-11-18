@@ -3,7 +3,11 @@ import type { Metadata } from 'next'
 import { Montserrat, Lora } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from "@/components/ui/toaster"
-import { CookieConsent } from '@/components/CookieConsent'
+import dynamic from 'next/dynamic'
+
+const CookieConsent = dynamic(() => import('@/components/CookieConsent'), {
+  ssr: false
+})
 
 const montserrat = Montserrat({ 
   subsets: ['latin'], 

@@ -3,7 +3,9 @@ const nextConfig = {
   output: 'standalone',
   images: {
     domains: ['images.unsplash.com'],
-    unoptimized: true
+    unoptimized: true,
+    loader: 'custom',
+    loaderFile: './image-loader.js'
   },
   typescript: {
     ignoreBuildErrors: true
