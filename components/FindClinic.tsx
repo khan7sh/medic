@@ -47,7 +47,6 @@ export default function FindClinic() {
   const findNearestClinics = async () => {
     setIsLoading(true)
     try {
-      // Validate and fetch coordinates for user's postcode
       const userRes = await fetch(`https://api.postcodes.io/postcodes/${postcode}`)
       const userData = await userRes.json()
 
@@ -60,7 +59,6 @@ export default function FindClinic() {
         longitude: userData.result.longitude
       }
 
-      // Calculate distances for all clinics
       const clinicsWithDistances = await Promise.all(
         clinicDetails.map(async (clinic) => {
           const clinicRes = await fetch(`https://api.postcodes.io/postcodes/${clinic.postcode}`)
@@ -78,7 +76,7 @@ export default function FindClinic() {
         })
       )
 
-      // Sort by distance and take the 3 nearest
+      // Sort by distance and take only the 3 nearest
       const nearest = clinicsWithDistances
         .sort((a, b) => (a.distance || 0) - (b.distance || 0))
         .slice(0, 3)
@@ -96,37 +94,49 @@ export default function FindClinic() {
   }
 
   return (
-    <section className="py-24 bg-secondary/50">
+    <section className="py-24 bg-gradient-to-br from-primary/10 via-background to-primary/5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-4xl font-extrabold text-center gradient-text mb-8">Find Your Nearest Clinic</h2>
-        <div className="max-w-xl mx-auto mb-12">
-          <div className="flex gap-4">
-            <Input
-              type="text"
-              placeholder="Enter your postcode"
-              value={postcode}
-              onChange={(e) => setPostcode(e.target.value.toUpperCase())}
-              className="text-lg py-6"
-            />
-            <Button 
-              onClick={findNearestClinics}
-              size="lg"
-              className="px-8"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                'Search'
-              )}
-            </Button>
+        <div className="max-w-3xl mx-auto text-center mb-12">
+          <h2 className="text-4xl font-extrabold gradient-text mb-4">Find Your Nearest Clinic</h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            Enter your postcode to discover the closest MedicalD4 clinics to you
+          </p>
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input
+                type="text"
+                placeholder="Enter your postcode"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value.toUpperCase())}
+                className="text-lg py-6 bg-white"
+              />
+              <Button 
+                onClick={findNearestClinics}
+                size="lg"
+                className="px-8 w-full sm:w-auto"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Find Clinics'
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 
         {nearestClinics.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {nearestClinics.map((clinic) => (
-              <Card key={clinic.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            {nearestClinics.map((clinic, index) => (
+              <Card 
+                key={clinic.id} 
+                className={`overflow-hidden transition-shadow duration-300 ${
+                  index === 0 
+                    ? 'ring-2 ring-primary shadow-lg transform hover:-translate-y-1' 
+                    : 'hover:shadow-xl'
+                }`}
+              >
                 <div className="relative h-48">
                   <Image
                     src={clinic.image}
@@ -134,10 +144,15 @@ export default function FindClinic() {
                     layout="fill"
                     objectFit="cover"
                   />
+                  {index === 0 && (
+                    <div className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Nearest
+                    </div>
+                  )}
                 </div>
                 <CardHeader>
                   <CardTitle>{clinic.fullName}</CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-lg font-semibold text-primary">
                     {clinic.distance?.toFixed(1)} miles away
                   </p>
                 </CardHeader>
