@@ -53,7 +53,9 @@ export default function ManagePage() {
   async function fetchLocations() {
     const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
-      .select('*')
+      .select('id, name, slug')
+
+    console.log('Locations data:', locationsData)
 
     if (locationsError) {
       console.error('Error fetching locations:', locationsError)
