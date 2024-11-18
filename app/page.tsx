@@ -8,6 +8,7 @@ import BusinessServices from '@/components/BusinessServices'
 import About from '@/components/About'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
+import FindClinic from '@/components/FindClinic'
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
         <Hero />
         <Steps />
         <Services />
+        <FindClinic />
         <Reviews />
         <BusinessServices />
         <About />
