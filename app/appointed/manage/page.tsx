@@ -55,9 +55,7 @@ export default function ManagePage() {
   async function fetchLocations() {
     const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
-      .select('id, name, slug')
-
-    console.log('Locations data:', locationsData)
+      .select('id, name, slug, postcode')
 
     if (locationsError) {
       console.error('Error fetching locations:', locationsError)
@@ -73,10 +71,13 @@ export default function ManagePage() {
       return
     }
 
-    const locationsWithFreezes = locationsData.map(location => ({
+    console.log('Locations:', locationsData)
+    console.log('Freezes:', freezesData)
+
+    const locationsWithFreezes = locationsData?.map(location => ({
       ...location,
-      freezes: freezesData.filter(freeze => freeze.location_id === location.id)
-    }))
+      freezes: freezesData?.filter(freeze => freeze.location_id === location.id) || []
+    })) || []
 
     setLocations(locationsWithFreezes)
   }
@@ -91,33 +92,7 @@ export default function ManagePage() {
       return
     }
 
-    if (!isFullDay && (!startTime || !endTime)) {
-      toast({
-        title: 'Error',
-        description: 'Please select both start and end times',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
-      // Check if a freeze already exists for this date and location
-      const { data: existingFreeze } = await supabase
-        .from('location_freezes')
-        .select('*')
-        .eq('location_id', selectedLocation)
-        .eq('date', format(selectedDate, 'yyyy-MM-dd'))
-        .single()
-
-      if (existingFreeze) {
-        toast({
-          title: 'Error',
-          description: 'This location is already frozen for the selected date',
-          variant: 'destructive',
-        })
-        return
-      }
-
       const freezeData = {
         location_id: selectedLocation,
         date: format(selectedDate, 'yyyy-MM-dd'),
@@ -127,14 +102,20 @@ export default function ManagePage() {
         reason: freezeReason
       }
 
-      const { error } = await supabase
+      console.log('Attempting to add freeze:', freezeData)
+
+      const { data, error } = await supabase
         .from('location_freezes')
         .insert([freezeData])
+        .select()
+        .single()
 
       if (error) {
-        console.error('Freeze error:', error)
+        console.error('Supabase error:', error)
         throw error
       }
+
+      console.log('Freeze added successfully:', data)
 
       // Reset form
       setSelectedDate(undefined)
@@ -143,17 +124,17 @@ export default function ManagePage() {
       setEndTime('')
       
       toast({
-        title: 'Location Frozen',
+        title: 'Success',
         description: `Location has been frozen for ${isFullDay ? 'the entire day' : 'the selected time period'}`,
       })
 
-      // Refresh locations to show new freeze
-      fetchLocations()
-    } catch (error) {
-      console.error('Error adding freeze:', error)
+      // Refresh locations
+      await fetchLocations()
+    } catch (error: any) {
+      console.error('Full error:', error)
       toast({
         title: 'Error',
-        description: 'Failed to freeze location. Please try again.',
+        description: error.message || 'Failed to freeze location. Please try again.',
         variant: 'destructive',
       })
     }
