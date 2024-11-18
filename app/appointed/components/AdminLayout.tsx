@@ -7,7 +7,8 @@ import {
   Calendar, 
   Settings,
   FileSpreadsheet,
-  LogOut
+  LogOut,
+  Building2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
@@ -38,6 +39,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       href: '/appointed/manage',
       icon: Settings,
       current: pathname === '/appointed/manage'
+    },
+    {
+      href: '/admin/business-inquiries',
+      label: 'Business Inquiries',
+      icon: Building2
     }
   ]
 
