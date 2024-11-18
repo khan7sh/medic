@@ -1,28 +1,30 @@
 'use client'
 
+import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Clock, Calendar, Mail } from 'lucide-react'
+import { MapPin, Phone, Clock, Calendar, Mail, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import FindClinic from '@/components/FindClinic'
+import { Input } from '@/components/ui/input'
+import { calculateDistance } from '@/utils/distance'
+import { useToast } from '@/hooks/use-toast'
 
 // Using the same locations data from LocationSelector
 const locations = [
-  { id: 'bedford', name: 'Bedford MK40 1UH' },
-  { id: 'birmingham', name: 'Birmingham, B66 4TB' },
-  { id: 'bolton', name: 'Bolton, BL6 4RQ' },
-  { id: 'cambridge', name: 'Cambridge CB1 9XQ' },
-  { id: 'hertfordshire', name: 'Hertfordshire, SG5 1AR' },
-  { id: 'newcastle', name: 'Newcastle Under Lyme ST5 2JG' },
-  { id: 'peterborough', name: 'Peterborough, PE2 6XU' },
-  { id: 'plymouth', name: 'Plymouth PL99JB' },
-  { id: 'southampton', name: 'Southampton SO16 4NW' },
+  { id: 'bedford', name: 'Bedford MK40 1UH', postcode: 'MK40 1UH' },
+  { id: 'birmingham', name: 'Birmingham, B66 4TB', postcode: 'B66 4TB' },
+  { id: 'bolton', name: 'Bolton, BL6 4RQ', postcode: 'BL6 4RQ' },
+  { id: 'cambridge', name: 'Cambridge CB1 9XQ', postcode: 'CB1 9XQ' },
+  { id: 'hertfordshire', name: 'Hertfordshire, SG5 1AR', postcode: 'SG5 1AR' },
+  { id: 'newcastle', name: 'Newcastle Under Lyme ST5 2JG', postcode: 'ST5 2JG' },
+  { id: 'peterborough', name: 'Peterborough, PE2 6XU', postcode: 'PE2 6XU' },
+  { id: 'plymouth', name: 'Plymouth PL99JB', postcode: 'PL9 9JB' },
+  { id: 'southampton', name: 'Southampton SO16 4NW', postcode: 'SO16 4NW' },
 ]
 
-// Extended clinic details
 const clinicDetails = locations.map(location => ({
   ...location,
   fullName: `MedicalD4 ${location.name.split(',')[0]} Clinic`,
@@ -32,7 +34,62 @@ const clinicDetails = locations.map(location => ({
   image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2035&q=80'
 }))
 
+type ClinicWithDistance = typeof clinicDetails[number] & {
+  distance?: number;
+}
+
 export default function ClinicsPage() {
+  const [postcode, setPostcode] = useState('')
+  const [sortedClinics, setSortedClinics] = useState<ClinicWithDistance[]>(clinicDetails)
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+
+  const findNearestClinics = async () => {
+    setIsLoading(true)
+    try {
+      const userRes = await fetch(`https://api.postcodes.io/postcodes/${postcode}`)
+      const userData = await userRes.json()
+
+      if (!userData.result) {
+        throw new Error('Invalid postcode')
+      }
+
+      const userLocation = {
+        latitude: userData.result.latitude,
+        longitude: userData.result.longitude
+      }
+
+      const clinicsWithDistances = await Promise.all(
+        clinicDetails.map(async (clinic) => {
+          const clinicRes = await fetch(`https://api.postcodes.io/postcodes/${clinic.postcode}`)
+          const clinicData = await clinicRes.json()
+          
+          const distance = calculateDistance(userLocation, {
+            latitude: clinicData.result.latitude,
+            longitude: clinicData.result.longitude
+          })
+
+          return {
+            ...clinic,
+            distance
+          }
+        })
+      )
+
+      // Sort all clinics by distance
+      const sorted = clinicsWithDistances.sort((a, b) => (a.distance || 0) - (b.distance || 0))
+      setSortedClinics(sorted)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid UK postcode",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -56,20 +113,46 @@ export default function ClinicsPage() {
               <p className="text-2xl text-muted-foreground mb-8">
                 Find your nearest MedicalD4 assessment center with convenient locations across the UK.
               </p>
+              <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-primary/10">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Input
+                    type="text"
+                    placeholder="Enter your postcode"
+                    value={postcode}
+                    onChange={(e) => setPostcode(e.target.value.toUpperCase())}
+                    className="text-lg py-6 bg-white"
+                  />
+                  <Button 
+                    onClick={findNearestClinics}
+                    size="lg"
+                    className="px-8 w-full sm:w-auto"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Find Nearest Clinic'
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Find Clinic Section */}
-        <FindClinic />
-
-        {/* All Clinics Grid */}
+        {/* Clinics Grid */}
         <section className="py-24 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold mb-12 text-center">All Available Locations</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {clinicDetails.map((clinic) => (
-                <Card key={clinic.id} className="overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              {sortedClinics.map((clinic, index) => (
+                <Card 
+                  key={clinic.id} 
+                  className={`overflow-hidden transition-shadow duration-300 ${
+                    clinic.distance && index === 0 
+                      ? 'border-2 border-primary'
+                      : ''
+                  }`}
+                >
                   <div className="relative h-48">
                     <Image
                       src={clinic.image}
