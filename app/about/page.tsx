@@ -35,10 +35,10 @@ export default function About() {
       <Header />
       <main>
         {/* Hero Section */}
-        <div className="relative hero-gradient py-24">
+        <div className="relative hero-gradient py-12 sm:py-24">
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+              src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133"
               alt="Medical team"
               layout="fill"
               objectFit="cover"
@@ -47,10 +47,10 @@ export default function About() {
           </div>
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl">
-              <h1 className="text-5xl font-extrabold gradient-text mb-6">
+              <h1 className="text-3xl sm:text-5xl font-extrabold gradient-text mb-4 sm:mb-6">
                 About MedicalD4
               </h1>
-              <p className="text-2xl text-muted-foreground">
+              <p className="text-lg sm:text-2xl text-muted-foreground">
                 Your trusted partner for professional driver medical assessments across the UK.
               </p>
             </div>
@@ -58,9 +58,9 @@ export default function About() {
         </div>
 
         {/* Our Story */}
-        <section className="py-24 bg-background">
+        <section className="py-12 sm:py-24 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
               <div className="lg:w-1/2">
                 <h2 className="text-4xl font-extrabold gradient-text mb-8">Our Story</h2>
                 <div className="space-y-6 text-lg text-muted-foreground">

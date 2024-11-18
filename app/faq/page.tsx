@@ -72,26 +72,23 @@ export default function FAQPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main>
-        <div className="relative bg-gradient-to-b from-primary/5 to-background py-24">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-5xl font-extrabold gradient-text mb-6">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Find answers to common questions about our medical assessment services
-            </p>
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <Accordion type="single" collapsible className="w-full space-y-4">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-8 text-center">
+          Frequently Asked Questions
+        </h1>
+        
+        <div className="max-w-3xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="bg-card rounded-lg px-6">
-                <AccordionTrigger className="text-lg font-semibold hover:text-primary">
+              <AccordionItem 
+                key={index} 
+                value={`item-${index}`}
+                className="bg-card rounded-lg px-4 sm:px-6"
+              >
+                <AccordionTrigger className="text-base sm:text-lg font-medium py-4 sm:py-6">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground whitespace-pre-line">
+                <AccordionContent className="text-sm sm:text-base text-muted-foreground pb-4 sm:pb-6">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

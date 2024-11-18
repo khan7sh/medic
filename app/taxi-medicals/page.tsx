@@ -27,10 +27,10 @@ export default function TaxiMedicals() {
       <Header />
       <main>
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-b from-primary/5 to-background py-24">
+        <div className="relative bg-gradient-to-b from-primary/5 to-background py-12 sm:py-24">
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1562619371-b67725b6fde2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+              src="https://images.unsplash.com/photo-1562619371-b67725b6fde2"
               alt="Taxi background"
               layout="fill"
               objectFit="cover"
@@ -39,24 +39,24 @@ export default function TaxiMedicals() {
           </div>
           <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl">
-              <h1 className="text-5xl font-extrabold gradient-text mb-6"> 
+              <h1 className="text-3xl sm:text-5xl font-extrabold gradient-text mb-4 sm:mb-6"> 
                 Taxi Medical Assessments
               </h1>
-              <p className="text-2xl text-muted-foreground mb-8">
-                Complete your taxi medical assessment with our DVLA-approved doctors. Fast, reliable, and affordable service nationwide.
+              <p className="text-lg sm:text-2xl text-muted-foreground mb-6 sm:mb-8">
+                Complete your taxi medical assessment with our DVLA-approved doctors.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg" className="shadow-lg shadow-primary/25">
-                  <Link href="/booking/services?service=taxi" className="flex items-center">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="w-full sm:w-auto shadow-lg shadow-primary/25">
+                  <Link href="/booking/services?service=taxi" className="flex items-center justify-center">
                     <Calendar className="mr-2 h-5 w-5" />
                     Book Your Medical
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
+                <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                   <a href="https://assets.publishing.service.gov.uk/media/5e5e8d5be90e070ac5e0fb7f/d4_medical_examination_report.pdf" 
                      target="_blank" 
                      rel="noopener noreferrer"
-                     className="flex items-center">
+                     className="flex items-center justify-center">
                     <Download className="mr-2 h-5 w-5" />
                     Download D4 Form
                   </a>
@@ -67,9 +67,9 @@ export default function TaxiMedicals() {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
           {/* Key Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-8 sm:mb-16">
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <CheckCircle className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-semibold mb-3">Council Approved</h3>
@@ -88,9 +88,9 @@ export default function TaxiMedicals() {
           </div>
 
           {/* Council Requirements */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">Council Requirements</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mb-8 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Council Requirements</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
               <div className="bg-white rounded-2xl p-8 shadow-lg">
                 <div className="flex items-center mb-6">
                   <AlertCircle className="h-6 w-6 text-primary mr-3" />
@@ -124,9 +124,9 @@ export default function TaxiMedicals() {
           </div>
 
           {/* Important Information */}
-          <div className="bg-gradient-to-br from-primary/5 to-background rounded-2xl p-8 shadow-lg">
-            <h2 className="text-3xl font-bold mb-6">Important Information</h2>
-            <div className="space-y-4 text-muted-foreground">
+          <div className="bg-gradient-to-br from-primary/5 to-background rounded-xl sm:rounded-2xl p-4 sm:p-8 shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Important Information</h2>
+            <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-muted-foreground">
               <p>• If your council is not listed above, please contact us or check with your council directly.</p>
               <p>• Some councils require full Medical Records or a medical summary to be reviewed by the doctor signing your D4 form.</p>
               <p>• Please contact us prior to booking your taxi medical if you're unsure about your council's requirements.</p>
