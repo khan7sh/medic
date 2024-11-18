@@ -33,6 +33,8 @@ interface LocationFreeze {
 interface Location {
   id: string
   name: string
+  slug: string
+  postcode: string
   freezes: LocationFreeze[]
 }
 
@@ -89,7 +91,33 @@ export default function ManagePage() {
       return
     }
 
+    if (!isFullDay && (!startTime || !endTime)) {
+      toast({
+        title: 'Error',
+        description: 'Please select both start and end times',
+        variant: 'destructive',
+      })
+      return
+    }
+
     try {
+      // Check if a freeze already exists for this date and location
+      const { data: existingFreeze } = await supabase
+        .from('location_freezes')
+        .select('*')
+        .eq('location_id', selectedLocation)
+        .eq('date', format(selectedDate, 'yyyy-MM-dd'))
+        .single()
+
+      if (existingFreeze) {
+        toast({
+          title: 'Error',
+          description: 'This location is already frozen for the selected date',
+          variant: 'destructive',
+        })
+        return
+      }
+
       const freezeData = {
         location_id: selectedLocation,
         date: format(selectedDate, 'yyyy-MM-dd'),
@@ -103,19 +131,29 @@ export default function ManagePage() {
         .from('location_freezes')
         .insert([freezeData])
 
-      if (error) throw error
+      if (error) {
+        console.error('Freeze error:', error)
+        throw error
+      }
 
-      setFreezeReason('') // Reset reason
+      // Reset form
+      setSelectedDate(undefined)
+      setFreezeReason('')
+      setStartTime('')
+      setEndTime('')
+      
       toast({
         title: 'Location Frozen',
         description: `Location has been frozen for ${isFullDay ? 'the entire day' : 'the selected time period'}`,
       })
 
+      // Refresh locations to show new freeze
       fetchLocations()
     } catch (error) {
+      console.error('Error adding freeze:', error)
       toast({
         title: 'Error',
-        description: 'Failed to freeze location',
+        description: 'Failed to freeze location. Please try again.',
         variant: 'destructive',
       })
     }
