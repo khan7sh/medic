@@ -30,6 +30,7 @@ export async function middleware(req: NextRequest) {
 // Configure which routes to run middleware on
 export const config = {
   matcher: [
-    '/appointed/:path*'
+    '/appointed/:path*',
+    '/admin/:path*'
   ]
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -8,18 +9,51 @@ import {
   Settings,
   FileSpreadsheet,
   LogOut,
-  Building2
+  Building2,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
+import { useAuthCheck } from '@/hooks/use-auth-check'
 
 interface AdminLayoutProps {
   children: React.ReactNode
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const [isLoading, setIsLoading] = useState(true)
   const pathname = usePathname()
   const router = useRouter()
+  useAuthCheck()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session || session.user?.user_metadata?.role !== 'admin') {
+        router.push('/auth/login')
+      } else {
+        setIsLoading(false)
+      }
+    }
+    checkAuth()
+  }, [router])
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/auth/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   const navigation = [
     {
@@ -47,15 +81,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       current: pathname === '/admin/business-inquiries'
     }
   ]
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut()
-      router.push('/auth/login')
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
-  }
 
   return (
     <div className="min-h-screen flex">
