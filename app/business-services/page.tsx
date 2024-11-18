@@ -85,7 +85,7 @@ export default function BusinessServices() {
                 Comprehensive medical assessment solutions for training centres, haulage companies, and transport operators.
               </p>
               <Button asChild size="lg" className="shadow-lg shadow-primary/25">
-                <Link href="#contact" className="flex items-center">
+                <Link href="/contact" className="flex items-center">
                   <Briefcase className="mr-2 h-5 w-5" />
                   Contact Our Business Team
                 </Link>
@@ -154,7 +154,7 @@ export default function BusinessServices() {
               Contact our business team today to discuss your company's medical assessment needs and discover our tailored solutions.
             </p>
             <Button asChild size="lg" className="shadow-lg shadow-primary/25">
-              <Link href="#contact" className="flex items-center">
+              <Link href="/contact" className="flex items-center">
                 <Building2 className="mr-2 h-5 w-5" />
                 Schedule a Consultation
               </Link>
