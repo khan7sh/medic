@@ -21,6 +21,10 @@ export default function Hero() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight font-extrabold gradient-text mb-4 sm:mb-6">
             Medical D4 Assessments
           </h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="text-3xl sm:text-4xl font-bold text-primary">£55</span>
+            <span className="text-lg sm:text-xl text-muted-foreground">(VAT & Eye Test Included)</span>
+          </div>
           <p className="mt-3 max-w-md mx-auto text-lg sm:text-xl md:text-2xl text-foreground/90 font-medium">
             We provide the cheapest medical assessments, eye test included, for drivers nationwide.
           </p>

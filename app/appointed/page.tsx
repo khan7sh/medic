@@ -294,8 +294,8 @@ export default function AppointedPage() {
               </div>
             ) : (
               <>
-                <ScrollArea className="w-full overflow-auto">
-                  <div className="min-w-[1200px]">
+                <ScrollArea className="w-full overflow-auto border rounded-md">
+                  <div className="min-w-[800px]">
                     <table className="w-full border-collapse">
                       <thead className="bg-secondary">
                         <tr>
@@ -339,56 +339,60 @@ export default function AppointedPage() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => window.location.href = `mailto:${booking.email}`}
-                                >
-                                  <Mail className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => window.location.href = `tel:${booking.phone}`}
-                                >
-                                  <Phone className="h-4 w-4" />
-                                </Button>
-                                <div className="border-l mx-2 h-4" />
-                                {booking.status === 'pending' && (
-                                  <>
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => window.location.href = `mailto:${booking.email}`}
+                                  >
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => window.location.href = `tel:${booking.phone}`}
+                                  >
+                                    <Phone className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                  {booking.status === 'pending' && (
+                                    <>
+                                      <Button
+                                        size="sm"
+                                        variant="default"
+                                        className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                                        onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                      >
+                                        <Check className="h-4 w-4 mr-1" />
+                                        Confirm
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        className="w-full sm:w-auto"
+                                        onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                                      >
+                                        <X className="h-4 w-4 mr-1" />
+                                        Cancel
+                                      </Button>
+                                    </>
+                                  )}
+                                  {booking.status === 'confirmed' && (
                                     <Button
                                       size="sm"
                                       variant="default"
-                                      className="bg-green-600 hover:bg-green-700 text-white"
-                                      onClick={() => updateBookingStatus(booking.id, 'confirmed')}
+                                      className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
+                                      onClick={() => updateBookingStatus(booking.id, 'completed')}
                                     >
-                                      <Check className="h-4 w-4 mr-1" />
-                                      Confirm
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Complete
                                     </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={() => updateBookingStatus(booking.id, 'cancelled')}
-                                    >
-                                      <X className="h-4 w-4 mr-1" />
-                                      Cancel
-                                    </Button>
-                                  </>
-                                )}
-                                {booking.status === 'confirmed' && (
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                                    onClick={() => updateBookingStatus(booking.id, 'completed')}
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-1" />
-                                    Complete
-                                  </Button>
-                                )}
+                                  )}
+                                </div>
                               </div>
                             </td>
                           </tr>
