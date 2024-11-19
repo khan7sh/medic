@@ -295,33 +295,35 @@ export default function AppointedPage() {
             ) : (
               <>
                 <ScrollArea className="w-full overflow-auto border rounded-md">
-                  <div className="min-w-[800px]">
+                  <div className="min-w-[800px] lg:min-w-full">
                     <table className="w-full border-collapse">
                       <thead className="bg-secondary">
                         <tr>
                           <th className="px-6 py-4 text-left font-medium text-muted-foreground">Date & Time</th>
                           <th className="px-6 py-4 text-left font-medium text-muted-foreground">Customer</th>
-                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Service</th>
-                          <th className="px-6 py-4 text-left font-medium text-muted-foreground">Location</th>
+                          <th className="hidden lg:table-cell px-6 py-4 text-left font-medium text-muted-foreground">Service</th>
+                          <th className="hidden lg:table-cell px-6 py-4 text-left font-medium text-muted-foreground">Location</th>
                           <th className="px-6 py-4 text-left font-medium text-muted-foreground">Status</th>
                           <th className="px-6 py-4 text-left font-medium text-muted-foreground">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredBookings.map((booking) => (
-                          <tr 
-                            key={booking.id} 
-                            className="border-b hover:bg-muted/50 transition-colors"
-                          >
+                          <tr key={booking.id} className="border-b hover:bg-muted/50 transition-colors">
                             <td className="px-6 py-4">
-                              {booking.date} {booking.time}
+                              <div className="whitespace-nowrap">{booking.date}</div>
+                              <div className="whitespace-nowrap">{booking.time}</div>
                             </td>
                             <td className="px-6 py-4">
                               <div>{booking.first_name} {booking.last_name}</div>
                               <div className="text-sm text-muted-foreground">{booking.email}</div>
+                              <div className="lg:hidden mt-1">
+                                <div className="text-sm text-muted-foreground">{booking.service_title}</div>
+                                <div className="text-sm text-muted-foreground">{booking.location}</div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4">{booking.service_title}</td>
-                            <td className="px-6 py-4">{booking.location}</td>
+                            <td className="hidden lg:table-cell px-6 py-4">{booking.service_title}</td>
+                            <td className="hidden lg:table-cell px-6 py-4">{booking.location}</td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
                                 ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800 border border-green-200' : ''}
@@ -339,7 +341,7 @@ export default function AppointedPage() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                              <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2">
                                   <Button
                                     size="sm"
@@ -358,13 +360,13 @@ export default function AppointedPage() {
                                     <Phone className="h-4 w-4" />
                                   </Button>
                                 </div>
-                                <div className="w-full sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <div className="flex flex-col gap-2">
                                   {booking.status === 'pending' && (
                                     <>
                                       <Button
                                         size="sm"
                                         variant="default"
-                                        className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto"
+                                        className="bg-green-600 hover:bg-green-700 text-white"
                                         onClick={() => updateBookingStatus(booking.id, 'confirmed')}
                                       >
                                         <Check className="h-4 w-4 mr-1" />
@@ -373,7 +375,6 @@ export default function AppointedPage() {
                                       <Button
                                         size="sm"
                                         variant="destructive"
-                                        className="w-full sm:w-auto"
                                         onClick={() => updateBookingStatus(booking.id, 'cancelled')}
                                       >
                                         <X className="h-4 w-4 mr-1" />
@@ -385,7 +386,7 @@ export default function AppointedPage() {
                                     <Button
                                       size="sm"
                                       variant="default"
-                                      className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
+                                      className="bg-blue-600 hover:bg-blue-700 text-white"
                                       onClick={() => updateBookingStatus(booking.id, 'completed')}
                                     >
                                       <CheckCircle className="h-4 w-4 mr-1" />
