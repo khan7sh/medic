@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, CalendarIcon, Clock, MapPin, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarIcon, Clock, MapPin, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import {
   Select,
@@ -30,6 +30,8 @@ const timeSlots = [
   '17:00'
 ]
 
+const SLOTS_PER_PAGE = 8; // Show 8 slots at a time (4 rows of 2)
+
 export default function DateTimePage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -38,6 +40,7 @@ export default function DateTimePage() {
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const { toast } = useToast()
+  const [currentPage, setCurrentPage] = useState(0);
 
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
@@ -117,6 +120,25 @@ export default function DateTimePage() {
     }
   }
 
+  // Calculate total pages and current page slots
+  const totalPages = Math.ceil(availableSlots.length / SLOTS_PER_PAGE);
+  const currentSlots = availableSlots.slice(
+    currentPage * SLOTS_PER_PAGE,
+    (currentPage + 1) * SLOTS_PER_PAGE
+  );
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(curr => curr + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(curr => curr - 1);
+    }
+  };
+
   return (
     <BookingLayout
       currentStep={3}
@@ -182,17 +204,44 @@ export default function DateTimePage() {
                 No available slots for this date
               </p>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
-                {availableSlots.map((time) => (
+              <div className="relative">
+                <div className="grid grid-cols-2 gap-2">
+                  {currentSlots.map((time) => (
+                    <Button
+                      key={time}
+                      variant={timeSlot === time ? "default" : "outline"}
+                      className="w-full py-6 text-sm sm:text-base"
+                      onClick={() => setTimeSlot(time)}
+                    >
+                      {time} - {time === '17:00' ? '17:15' : timeSlots[timeSlots.indexOf(time) + 1]}
+                    </Button>
+                  ))}
+                </div>
+                
+                {/* Navigation arrows */}
+                <div className="flex justify-between mt-4">
                   <Button
-                    key={time}
-                    variant={timeSlot === time ? "default" : "outline"}
-                    className="w-full py-6 text-sm sm:text-base"
-                    onClick={() => setTimeSlot(time)}
+                    variant="outline"
+                    size="icon"
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 0}
+                    className="h-8 w-8"
                   >
-                    {time} - {time === '17:00' ? '17:15' : timeSlots[timeSlots.indexOf(time) + 1]}
+                    <ArrowLeft className="h-4 w-4" />
                   </Button>
-                ))}
+                  <span className="text-sm text-muted-foreground">
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages - 1}
+                    className="h-8 w-8"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
