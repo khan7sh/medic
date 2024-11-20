@@ -182,19 +182,18 @@ export default function DateTimePage() {
                 No available slots for this date
               </p>
             ) : (
-              <Select value={timeSlot} onValueChange={setTimeSlot}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a time slot" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time} - {time === '17:00' ? '17:15' : 
-                        timeSlots[timeSlots.indexOf(time) + 1]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-2 gap-2">
+                {availableSlots.map((time) => (
+                  <Button
+                    key={time}
+                    variant={timeSlot === time ? "default" : "outline"}
+                    className="w-full py-6 text-sm sm:text-base"
+                    onClick={() => setTimeSlot(time)}
+                  >
+                    {time} - {time === '17:00' ? '17:15' : timeSlots[timeSlots.indexOf(time) + 1]}
+                  </Button>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
