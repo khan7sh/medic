@@ -6,7 +6,7 @@ import AdminLayout from '@/app/appointed/components/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import { Mail, Phone, Check, X, Loader2 } from 'lucide-react'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function BusinessInquiriesPage() {
   const [inquiries, setInquiries] = useState([])
@@ -67,90 +67,92 @@ export default function BusinessInquiriesPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Business Inquiries</h1>
         
-        <div className="bg-white rounded-lg shadow">
-          {isLoading ? (
-            <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : (
-            <ScrollArea className="w-full overflow-auto">
-              <div className="min-w-[1000px]">
-                <table className="w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enquiry Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {inquiries.map((inquiry: any) => (
-                      <tr key={inquiry.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {inquiry.first_name} {inquiry.last_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {inquiry.company}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col space-y-1">
-                            <div className="flex items-center">
-                              <Mail className="h-4 w-4 mr-2 text-primary" />
-                              <a href={`mailto:${inquiry.email}`} className="text-primary hover:underline">
-                                {inquiry.email}
-                              </a>
-                            </div>
-                            <div className="flex items-center">
-                              <Phone className="h-4 w-4 mr-2 text-primary" />
-                              <a href={`tel:${inquiry.phone}`} className="text-primary hover:underline">
-                                {inquiry.phone}
-                              </a>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {inquiry.enquiry_type}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            ${inquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                            inquiry.status === 'contacted' ? 'bg-green-100 text-green-800' : 
-                            'bg-gray-100 text-gray-800'}`}>
-                            {inquiry.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateInquiryStatus(inquiry.id, 'contacted')}
-                            >
-                              <Check className="h-4 w-4 mr-1" />
-                              Mark Contacted
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                window.open(`mailto:${inquiry.email}`, '_blank')
-                              }}
-                            >
-                              <Mail className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        <Card>
+          <CardHeader>
+            <CardTitle>Inquiries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            </ScrollArea>
-          )}
-        </div>
+            ) : (
+              <div className="space-y-4">
+                {inquiries.map((inquiry: any) => (
+                  <div 
+                    key={inquiry.id}
+                    className="border rounded-lg p-4 space-y-4"
+                  >
+                    {/* Status Badge */}
+                    <div className="flex justify-between items-center">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium
+                        ${inquiry.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                        inquiry.status === 'contacted' ? 'bg-green-100 text-green-800' : 
+                        'bg-gray-100 text-gray-800'}`}
+                      >
+                        {inquiry.status}
+                      </span>
+                    </div>
+
+                    {/* Company & Name */}
+                    <div>
+                      <h3 className="font-medium">{inquiry.company}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {inquiry.first_name} {inquiry.last_name}
+                      </p>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm">
+                        <Mail className="h-4 w-4 mr-2 text-primary" />
+                        <a href={`mailto:${inquiry.email}`} className="text-primary hover:underline">
+                          {inquiry.email}
+                        </a>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <Phone className="h-4 w-4 mr-2 text-primary" />
+                        <a href={`tel:${inquiry.phone}`} className="text-primary hover:underline">
+                          {inquiry.phone}
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Enquiry Type */}
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Enquiry Type: </span>
+                      {inquiry.enquiry_type}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="w-full"
+                        onClick={() => updateInquiryStatus(inquiry.id, 'contacted')}
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        Mark Contacted
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          window.open(`mailto:${inquiry.email}`, '_blank')
+                        }}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send Email
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   )
