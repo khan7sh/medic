@@ -77,7 +77,7 @@ export default function DateTimePage() {
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
         .select('time')
-        .eq('location_id', locationId)
+        .eq('location', locationId)
         .eq('date', format(selectedDate, 'dd MMMM yyyy'))
         .neq('status', 'cancelled')
 
