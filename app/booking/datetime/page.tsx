@@ -121,10 +121,47 @@ export default function DateTimePage() {
     router.push(`/booking/locations?service=${serviceId}&price=${servicePrice}&title=${serviceTitle}`)
   }
 
-  const handleBooking = () => {
-    if (date && timeSlot) {
-      const formattedDate = format(date, 'dd MMMM yyyy')
-      router.push(`/booking/details?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${locationId}&locationName=${encodeURIComponent(locationName || '')}&date=${encodeURIComponent(formattedDate)}&time=${encodeURIComponent(timeSlot)}`)
+  async function handleBooking() {
+    if (!date || !timeSlot) return;
+
+    try {
+      // First create the booking
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .insert({
+          service_id: serviceId,
+          service_title: serviceTitle,
+          location: locationId,
+          date: format(date, 'dd MMMM yyyy'),
+          time: timeSlot,
+          price: servicePrice,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (bookingError) throw bookingError;
+
+      // Then create the audit log entry
+      const { error: auditError } = await supabase
+        .from('admin_audit_log')
+        .insert({
+          booking_id: booking.id,
+          action: 'booking_created',
+          admin_email: 'info@medicald4.com' // Default system email
+        });
+
+      if (auditError) throw auditError;
+
+      // Navigate to the next step
+      router.push(`/booking/details?booking=${booking.id}`);
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast({
+        title: 'Booking Failed',
+        description: 'Failed to create booking. Please try again.',
+        variant: 'destructive',
+      });
     }
   }
 
