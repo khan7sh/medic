@@ -24,28 +24,37 @@ export interface BookingData {
 
 export async function createBooking(bookingData: BookingData) {
   try {
-    // Convert date of birth from DD/MM/YYYY to YYYY-MM-DD
     const [day, month, year] = bookingData.date_of_birth.split('/');
     const formattedDateOfBirth = `${year}-${month}-${day}`;
 
-    // Create a new booking data object with the formatted date
     const formattedBookingData = {
       ...bookingData,
       date_of_birth: formattedDateOfBirth,
       status: 'pending' as const
     };
 
-    console.log('Sending booking data to Supabase:', formattedBookingData);
-    
-    const { data, error } = await supabase
+    // Start a Supabase transaction
+    const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert([formattedBookingData])
       .select()
       .single();
 
-    if (error) {
-      console.error('Supabase error:', error);
-      throw new Error(`Booking failed: ${error.message}`);
+    if (bookingError) {
+      throw new Error(`Booking failed: ${bookingError.message}`);
+    }
+
+    // Create audit log entry
+    const { error: auditError } = await supabase
+      .from('admin_audit_log')
+      .insert([{
+        booking_id: booking.id,
+        action: 'booking_created',
+        admin_email: 'system@appointed.com'
+      }]);
+
+    if (auditError) {
+      throw new Error(`Audit log failed: ${auditError.message}`);
     }
 
     try {
@@ -54,7 +63,7 @@ export async function createBooking(bookingData: BookingData) {
       console.error('Email sending failed:', emailError);
     }
 
-    return data;
+    return booking;
   } catch (error) {
     console.error('CreateBooking error:', error);
     throw error;
