@@ -83,6 +83,7 @@ export default function DateTimePage() {
         .eq('location', locationId)
         .eq('date', format(selectedDate, 'dd MMMM yyyy'))
         .in('status', ['pending', 'confirmed']) // Only consider pending and confirmed bookings
+        .is('admin_email', null) // Ignore system-generated entries
 
       if (bookingsError) throw bookingsError
 
@@ -90,14 +91,7 @@ export default function DateTimePage() {
       const bookedTimes = new Set(bookings?.map(b => b.time) || [])
       const available = timeSlots.filter(slot => !bookedTimes.has(slot))
       
-      // Sort available slots by time
-      const sortedAvailable = available.sort((a, b) => {
-        const timeA = new Date(`1970/01/01 ${a}`);
-        const timeB = new Date(`1970/01/01 ${b}`);
-        return timeA.getTime() - timeB.getTime();
-      });
-
-      setAvailableSlots(sortedAvailable)
+      setAvailableSlots(available)
     } catch (error) {
       console.error('Error fetching availability:', error)
       toast({
