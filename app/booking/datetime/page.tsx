@@ -122,46 +122,34 @@ export default function DateTimePage() {
   }
 
   async function handleBooking() {
-    if (!date || !timeSlot) return;
+    if (!date || !timeSlot || !serviceId || !locationId) {
+      toast({
+        title: 'Error',
+        description: 'Please select both date and time',
+        variant: 'destructive',
+      })
+      return
+    }
 
     try {
-      // First create the booking
-      const { data: booking, error: bookingError } = await supabase
-        .from('bookings')
-        .insert({
-          service_id: serviceId,
-          service_title: serviceTitle,
-          location: locationId,
-          date: format(date, 'dd MMMM yyyy'),
-          time: timeSlot,
-          price: servicePrice,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (bookingError) throw bookingError;
-
-      // Then create the audit log entry
-      const { error: auditError } = await supabase
-        .from('admin_audit_log')
-        .insert({
-          booking_id: booking.id,
-          action: 'booking_created',
-          admin_email: 'info@medicald4.com' // Default system email
-        });
-
-      if (auditError) throw auditError;
-
-      // Navigate to the next step
-      router.push(`/booking/details?booking=${booking.id}`);
+      // Navigate to the details page with all necessary parameters
+      router.push(
+        `/booking/details?` + 
+        `service=${serviceId}` +
+        `&title=${encodeURIComponent(serviceTitle || '')}` +
+        `&price=${servicePrice}` +
+        `&location=${locationId}` +
+        `&locationName=${encodeURIComponent(locationName || '')}` +
+        `&date=${format(date, 'dd MMMM yyyy')}` +
+        `&time=${timeSlot}`
+      )
     } catch (error) {
-      console.error('Booking error:', error);
+      console.error('Booking error:', error)
       toast({
         title: 'Booking Failed',
-        description: 'Failed to create booking. Please try again.',
+        description: 'Failed to create new booking. Please try again.',
         variant: 'destructive',
-      });
+      })
     }
   }
 
