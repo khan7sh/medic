@@ -41,17 +41,20 @@ export async function createBooking(bookingData: BookingData) {
       .single();
 
     if (bookingError) {
+      console.error('Booking error:', bookingError);
       throw new Error(`Booking failed: ${bookingError.message}`);
     }
 
-    // Create basic audit log entry
+    // Create audit log entry without checking for errors
     await supabase
       .from('admin_audit_log')
       .insert({
         booking_id: booking.id,
         action: 'booking_created',
         admin_email: 'info@medicald4.com'
-      });
+      })
+      .select()
+      .single();
 
     try {
       await sendConfirmationEmail(bookingData);
