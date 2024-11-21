@@ -33,7 +33,7 @@ export async function createBooking(bookingData: BookingData) {
       status: 'pending' as const
     };
 
-    // Create booking
+    // Create booking first
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert([formattedBookingData])
@@ -44,19 +44,14 @@ export async function createBooking(bookingData: BookingData) {
       throw new Error(`Booking failed: ${bookingError.message}`);
     }
 
-    // Create audit log entry with simplified structure
-    const { error: auditError } = await supabase
+    // Create basic audit log entry
+    await supabase
       .from('admin_audit_log')
       .insert({
         booking_id: booking.id,
         action: 'booking_created',
-        admin_email: 'system@appointed.com'
+        admin_email: 'info@medicald4.com'
       });
-
-    if (auditError) {
-      console.error('Audit log error:', auditError);
-      // Don't throw error here, continue with booking
-    }
 
     try {
       await sendConfirmationEmail(bookingData);
