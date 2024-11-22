@@ -29,7 +29,7 @@ const services = [
     description: 'Your full HGV/LGV Medical including Eye Test',
     icon: Truck,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'taxi',
@@ -37,7 +37,7 @@ const services = [
     description: 'Your full Taxi D4 Medical Assessment & Eye Test',
     icon: Car,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'bus',
@@ -45,7 +45,7 @@ const services = [
     description: 'Your full Bus/PCV Medical including Eye Test',
     icon: Bus,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'ambulance',
@@ -53,7 +53,7 @@ const services = [
     description: 'Your full Ambulance Medical including Eye Test',
     icon: Ambulance,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'forklift',
@@ -61,7 +61,7 @@ const services = [
     description: 'Your full FLT Medical including Eye Test',
     icon: Forklift,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'motorhome',
@@ -69,7 +69,7 @@ const services = [
     description: 'Your full Motorhome Medical including Eye Test',
     icon: HomeIcon,
     duration: '15 min',
-    price: 50
+    price: 55
   },
   {
     id: 'airside',
