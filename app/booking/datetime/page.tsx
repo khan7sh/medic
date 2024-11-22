@@ -51,6 +51,13 @@ export default function DateTimePage() {
   useEffect(() => {
     if (date && locationId) {
       fetchAvailableSlots(date, locationId)
+      
+      // Refresh available slots every 30 seconds
+      const intervalId = setInterval(() => {
+        fetchAvailableSlots(date, locationId)
+      }, 30000)
+
+      return () => clearInterval(intervalId)
     }
   }, [date, locationId])
 
@@ -78,7 +85,7 @@ export default function DateTimePage() {
 
       // Format the date consistently for comparison
       const formattedDate = format(selectedDate, 'dd MMMM yyyy')
-
+      
       // Fetch existing bookings for the selected date and location
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
