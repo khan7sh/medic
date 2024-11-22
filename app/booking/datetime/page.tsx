@@ -76,13 +76,16 @@ export default function DateTimePage() {
         return
       }
 
+      // Format the date consistently for comparison
+      const formattedDate = format(selectedDate, 'dd MMMM yyyy')
+
       // Fetch existing bookings for the selected date and location
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
-        .select('time')
+        .select('time, status')
         .eq('location', locationId)
-        .eq('date', format(selectedDate, 'dd MMMM yyyy'))
-        .in('status', ['pending', 'confirmed']) // Only consider pending and confirmed bookings
+        .eq('date', formattedDate)
+        .in('status', ['pending', 'confirmed'])
 
       if (bookingsError) throw bookingsError
 
@@ -92,13 +95,13 @@ export default function DateTimePage() {
       
       // Sort available slots
       const sortedAvailable = available.sort((a, b) => {
-        const timeA = new Date(`1970/01/01 ${a}`);
-        const timeB = new Date(`1970/01/01 ${b}`);
-        return timeA.getTime() - timeB.getTime();
-      });
+        const timeA = new Date(`1970/01/01 ${a}`)
+        const timeB = new Date(`1970/01/01 ${b}`)
+        return timeA.getTime() - timeB.getTime()
+      })
 
       setAvailableSlots(sortedAvailable)
-      setCurrentPage(0) // Reset to first page when new slots are loaded
+      setCurrentPage(0)
     } catch (error) {
       console.error('Error fetching availability:', error)
       toast({
