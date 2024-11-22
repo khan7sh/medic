@@ -8,25 +8,25 @@ const services = [
   { 
     name: 'TFL/PCO & Taxi', 
     icon: Car, 
-    image: 'https://images.unsplash.com/photo-1621384135343-a2e8f4e1c88e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1632803227975-1947c3ca0c41?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=taxi'
   },
   { 
     name: 'HGV/LGV & Lorry/Truck', 
     icon: Truck, 
-    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=hgv'
   },
   { 
     name: 'Bus/Minibus', 
     icon: Bus, 
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=bus'
   },
   { 
     name: 'Forklift & Private Hire', 
     icon: Forklift, 
-    image: 'https://images.unsplash.com/photo-1581245308881-fd2e6e4a7a84?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1504480899134-8d1853623184?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=forklift'
   },
 ]
@@ -43,8 +43,10 @@ export default function Services() {
                 <Image
                   src={service.image}
                   alt={service.name}
-                  layout="fill"
-                  objectFit="cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  className="object-cover"
+                  priority={true}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               </div>
