@@ -49,7 +49,8 @@ export default function DateTimePage() {
   const locationName = searchParams.get('locationName')
 
   useEffect(() => {
-    if (date && locationId) {
+    if (date && locationId && locationName) {
+      console.log('Fetching slots for location:', locationName)
       fetchAvailableSlots(date, locationId)
       
       // Set up real-time subscription
@@ -60,7 +61,8 @@ export default function DateTimePage() {
           {
             event: '*',
             schema: 'public',
-            table: 'bookings'
+            table: 'bookings',
+            filter: `location=eq.${locationName}`
           },
           () => {
             fetchAvailableSlots(date, locationId)
@@ -72,7 +74,7 @@ export default function DateTimePage() {
         subscription.unsubscribe()
       }
     }
-  }, [date, locationId])
+  }, [date, locationId, locationName])
 
   async function fetchAvailableSlots(selectedDate: Date, locationId: string) {
     setIsLoadingSlots(true)
@@ -80,24 +82,17 @@ export default function DateTimePage() {
       // Format the date consistently for comparison
       const formattedDate = format(selectedDate, 'dd MMMM yyyy')
 
-      // First get the location name
-      const { data: locationData, error: locationError } = await supabase
-        .from('locations')
-        .select('name')
-        .eq('id', locationId)
-        .single()
-
-      if (locationError) throw locationError
-
       // Fetch existing bookings for the selected date and location
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
         .select('time')
-        .eq('location', locationData.name)
+        .eq('location', locationName)
         .eq('date', formattedDate)
         .in('status', ['pending', 'confirmed'])
 
       if (bookingsError) throw bookingsError
+
+      console.log('Booked times:', bookings?.map(b => b.time))
 
       // Create a Set of booked times for O(1) lookup
       const bookedTimes = new Set(bookings?.map(b => b.time))
