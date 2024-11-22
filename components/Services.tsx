@@ -26,7 +26,7 @@ const services = [
   { 
     name: 'Forklift & Private Hire', 
     icon: Forklift, 
-    image: 'https://images.unsplash.com/photo-1504480899134-8d1853623184?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1580901368919-7738efb0f87e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
     href: '/booking/services?type=forklift'
   },
 ]
