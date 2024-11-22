@@ -52,55 +52,60 @@ export default function DateTimePage() {
     if (date && locationId) {
       fetchAvailableSlots(date, locationId)
       
-      // Refresh available slots every 30 seconds
-      const intervalId = setInterval(() => {
-        fetchAvailableSlots(date, locationId)
-      }, 30000)
+      // Set up real-time subscription
+      const subscription = supabase
+        .channel('booking-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'bookings'
+          },
+          () => {
+            fetchAvailableSlots(date, locationId)
+          }
+        )
+        .subscribe()
 
-      return () => clearInterval(intervalId)
+      return () => {
+        subscription.unsubscribe()
+      }
     }
   }, [date, locationId])
 
   async function fetchAvailableSlots(selectedDate: Date, locationId: string) {
     setIsLoadingSlots(true)
     try {
-      // Check for location freezes first
-      const { data: freezes, error: freezeError } = await supabase
-        .from('location_freezes')
-        .select('*')
-        .eq('location_id', locationId)
-        .eq('date', format(selectedDate, 'yyyy-MM-dd'))
-
-      if (freezeError) throw freezeError
-
-      if (freezes && freezes.length > 0) {
-        toast({
-          title: 'Location Unavailable',
-          description: `This location is unavailable: ${freezes[0].reason}`,
-          variant: 'destructive',
-        })
-        setAvailableSlots([])
-        return
-      }
-
       // Format the date consistently for comparison
       const formattedDate = format(selectedDate, 'dd MMMM yyyy')
-      
+
+      // First get the location name
+      const { data: locationData, error: locationError } = await supabase
+        .from('locations')
+        .select('name')
+        .eq('id', locationId)
+        .single()
+
+      if (locationError) throw locationError
+
       // Fetch existing bookings for the selected date and location
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
-        .select('time, status')
-        .eq('location', locationId)
+        .select('time')
+        .eq('location', locationData.name)
         .eq('date', formattedDate)
         .in('status', ['pending', 'confirmed'])
 
       if (bookingsError) throw bookingsError
 
-      // Filter out booked slots
-      const bookedTimes = new Set(bookings?.map(b => b.time) || [])
+      // Create a Set of booked times for O(1) lookup
+      const bookedTimes = new Set(bookings?.map(b => b.time))
+      
+      // Filter available slots
       const available = timeSlots.filter(slot => !bookedTimes.has(slot))
       
-      // Sort available slots
+      // Sort by time
       const sortedAvailable = available.sort((a, b) => {
         const timeA = new Date(`1970/01/01 ${a}`)
         const timeB = new Date(`1970/01/01 ${b}`)
