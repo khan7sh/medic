@@ -8,7 +8,7 @@ const services = [
   { 
     name: 'TFL/PCO & Taxi', 
     icon: Car, 
-    image: 'https://images.unsplash.com/photo-1621384135343-a2e8f4e1c88e?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1533321942807-08e4008b2025?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=taxi'
   },
   { 
@@ -26,7 +26,7 @@ const services = [
   { 
     name: 'Forklift & Private Hire', 
     icon: Forklift, 
-    image: 'https://images.unsplash.com/photo-1581245308881-fd2e6e4a7a84?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1504480899134-8d1853623184?auto=format&fit=crop&w=1000&q=80',
     href: '/booking/services?type=forklift'
   },
 ]
