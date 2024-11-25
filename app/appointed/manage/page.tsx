@@ -77,18 +77,36 @@ export default function ManagePage() {
         return
       }
 
+      // First, let's check if the table exists
+      const { error: tableCheckError } = await supabase
+        .from('location_unavailable')
+        .select('count')
+        .limit(1)
+
+      if (tableCheckError) {
+        // If table doesn't exist, create it
+        const { error: createTableError } = await supabase
+          .rpc('create_location_unavailable_table')
+
+        if (createTableError) {
+          console.error('Error creating table:', createTableError)
+          toast({
+            title: 'Error',
+            description: 'Failed to initialize availability system',
+            variant: 'destructive',
+          })
+          return
+        }
+      }
+
       const { data: unavailableData, error: unavailableError } = await supabase
         .from('location_unavailable')
         .select('*')
 
       if (unavailableError) {
         console.error('Error fetching unavailable slots:', unavailableError)
-        toast({
-          title: 'Error',
-          description: 'Failed to fetch unavailable slots',
-          variant: 'destructive',
-        })
-        return
+        // Don't show error toast here as the table might not exist yet
+        // Just proceed with empty unavailable slots
       }
 
       const locationsWithSlots = locationsData?.map(location => ({
