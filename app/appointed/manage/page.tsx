@@ -62,30 +62,50 @@ export default function ManagePage() {
   }, [])
 
   async function fetchLocations() {
-    const { data: locationsData, error: locationsError } = await supabase
-      .from('locations')
-      .select('id, name, slug, postcode')
+    try {
+      const { data: locationsData, error: locationsError } = await supabase
+        .from('locations')
+        .select('id, name, slug, postcode')
 
-    if (locationsError) {
-      console.error('Error fetching locations:', locationsError)
-      return
+      if (locationsError) {
+        console.error('Error fetching locations:', locationsError)
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch locations',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      const { data: unavailableData, error: unavailableError } = await supabase
+        .from('location_unavailable')
+        .select('*')
+
+      if (unavailableError) {
+        console.error('Error fetching unavailable slots:', unavailableError)
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch unavailable slots',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      const locationsWithSlots = locationsData?.map(location => ({
+        ...location,
+        unavailable_slots: unavailableData?.filter(slot => slot.location_id === location.id) || []
+      })) || []
+
+      console.log('Fetched locations:', locationsWithSlots)
+      setLocations(locationsWithSlots)
+    } catch (error) {
+      console.error('Error in fetchLocations:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch location data',
+        variant: 'destructive',
+      })
     }
-
-    const { data: unavailableData, error: unavailableError } = await supabase
-      .from('location_unavailable')
-      .select('*')
-
-    if (unavailableError) {
-      console.error('Error fetching unavailable slots:', unavailableError)
-      return
-    }
-
-    const locationsWithSlots = locationsData?.map(location => ({
-      ...location,
-      unavailable_slots: unavailableData?.filter(slot => slot.location_id === location.id) || []
-    })) || []
-
-    setLocations(locationsWithSlots)
   }
 
   async function markUnavailable() {
@@ -179,18 +199,26 @@ export default function ManagePage() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-6">
-                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((location) => (
-                      <SelectItem key={location.id} value={location.id}>
-                        {location.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <label htmlFor="location" className="text-sm font-medium">
+                    Select Location
+                  </label>
+                  <Select 
+                    value={selectedLocation} 
+                    onValueChange={setSelectedLocation}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locations.map((location) => (
+                        <SelectItem key={location.id} value={location.id}>
+                          {location.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="space-y-4">
                   <Calendar
