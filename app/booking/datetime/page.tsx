@@ -81,6 +81,7 @@ export default function DateTimePage() {
     try {
       // Format the date consistently for comparison
       const formattedDate = format(selectedDate, 'dd MMMM yyyy')
+      const dbFormattedDate = format(selectedDate, 'yyyy-MM-dd')
 
       // Fetch existing bookings for the selected date and location
       const { data: bookings, error: bookingsError } = await supabase
@@ -92,13 +93,34 @@ export default function DateTimePage() {
 
       if (bookingsError) throw bookingsError
 
-      console.log('Booked times:', bookings?.map(b => b.time))
+      // Fetch unavailable slots for the selected date and location
+      const { data: unavailableData, error: unavailableError } = await supabase
+        .from('location_unavailable')
+        .select('*')
+        .eq('location_id', locationId)
+        .eq('date', dbFormattedDate)
+
+      if (unavailableError) throw unavailableError
 
       // Create a Set of booked times for O(1) lookup
       const bookedTimes = new Set(bookings?.map(b => b.time))
-      
-      // Filter available slots
-      const available = timeSlots.filter(slot => !bookedTimes.has(slot))
+
+      // Get all unavailable times from the unavailable slots
+      const unavailableTimes = new Set<string>()
+      unavailableData?.forEach(slot => {
+        if (slot.is_full_day) {
+          // If full day is unavailable, add all time slots
+          timeSlots.forEach(time => unavailableTimes.add(time))
+        } else {
+          // Add specific unavailable time slots
+          slot.time_slots.forEach(time => unavailableTimes.add(time))
+        }
+      })
+
+      // Filter available slots (not booked AND not unavailable)
+      const available = timeSlots.filter(slot => 
+        !bookedTimes.has(slot) && !unavailableTimes.has(slot)
+      )
       
       // Sort by time
       const sortedAvailable = available.sort((a, b) => {
