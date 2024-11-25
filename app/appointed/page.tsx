@@ -42,6 +42,8 @@ interface BookingData {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
   created_at: string
   updated_at: string | null
+  payment_method?: 'online' | 'inPerson'
+  payment_status?: 'pending' | 'paid' | 'failed'
 }
 
 const ITEMS_PER_PAGE = 10

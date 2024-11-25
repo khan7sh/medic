@@ -15,12 +15,14 @@ export default function ConfirmationPage() {
     date: searchParams.get('date'),
     time: searchParams.get('time'),
     name: searchParams.get('name'),
-    email: searchParams.get('email')
+    email: searchParams.get('email'),
+    paymentMethod: searchParams.get('paymentMethod'),
+    paymentStatus: searchParams.get('paymentMethod') === 'inPerson' ? 'pending' : 'paid'
   }
 
   return (
     <BookingLayout
-      currentStep={5}
+      currentStep={6}
       title="Booking Confirmed"
       description="Your appointment has been successfully scheduled"
     >
@@ -38,6 +40,8 @@ export default function ConfirmationPage() {
             <p><span className="font-medium">Time:</span> {bookingDetails.time}</p>
             <p><span className="font-medium">Name:</span> {bookingDetails.name}</p>
             <p><span className="font-medium">Email:</span> {bookingDetails.email}</p>
+            <p><span className="font-medium">Payment Method:</span> {bookingDetails.paymentMethod === 'online' ? 'Online Payment' : 'Pay at Clinic'}</p>
+            <p><span className="font-medium">Payment Status:</span> {bookingDetails.paymentStatus}</p>
           </div>
         </div>
 

@@ -125,6 +125,9 @@ export type Database = {
           updated_at: string | null
           vehicle_type: string | null
           voucher_code: string | null
+          payment_method: string | null
+          payment_status: string | null
+          payment_intent_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -149,6 +152,9 @@ export type Database = {
           updated_at?: string | null
           vehicle_type?: string | null
           voucher_code?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          payment_intent_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -173,6 +179,9 @@ export type Database = {
           updated_at?: string | null
           vehicle_type?: string | null
           voucher_code?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          payment_intent_id?: string | null
         }
         Relationships: []
       }

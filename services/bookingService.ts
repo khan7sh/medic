@@ -20,6 +20,9 @@ export interface BookingData {
   hear_about_us: string
   marketing_consent: boolean
   status?: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+  payment_method?: 'online' | 'inPerson'
+  payment_status?: 'pending' | 'paid' | 'failed'
+  payment_intent_id?: string
 }
 
 export async function createBooking(bookingData: BookingData) {
@@ -30,10 +33,11 @@ export async function createBooking(bookingData: BookingData) {
     const formattedBookingData = {
       ...bookingData,
       date_of_birth: formattedDateOfBirth,
-      status: 'pending' as const
+      status: 'pending' as const,
+      payment_status: bookingData.payment_method === 'inPerson' ? 'pending' : undefined,
+      payment_method: bookingData.payment_method
     };
 
-    // Create booking first
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert([formattedBookingData])
@@ -43,23 +47,6 @@ export async function createBooking(bookingData: BookingData) {
     if (bookingError) {
       console.error('Booking error:', bookingError);
       throw new Error(`Booking failed: ${bookingError.message}`);
-    }
-
-    // Create audit log entry without checking for errors
-    await supabase
-      .from('admin_audit_log')
-      .insert({
-        booking_id: booking.id,
-        action: 'booking_created',
-        admin_email: 'info@medicald4.com'
-      })
-      .select()
-      .single();
-
-    try {
-      await sendConfirmationEmail(bookingData);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
     }
 
     return booking;

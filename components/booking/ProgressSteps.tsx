@@ -14,7 +14,9 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
     { number: 1, label: 'Choose Service' },
     { number: 2, label: 'Select Location' },
     { number: 3, label: 'Choose Time' },
-    { number: 4, label: 'Your Details' }
+    { number: 4, label: 'Your Details' },
+    { number: 5, label: 'Payment' },
+    { number: 6, label: 'Confirmation' }
   ]
 
   // Calculate progress percentage

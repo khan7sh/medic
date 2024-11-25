@@ -83,13 +83,15 @@ export default function BookingDetailsForm() {
         employer: values.employer,
         voucher_code: values.voucherCode,
         hear_about_us: values.hearAboutUs,
-        marketing_consent: values.marketingConsent || false
+        marketing_consent: values.marketingConsent || false,
+        payment_method: undefined,
+        payment_status: 'pending'
       }
 
       console.log('Attempting to create booking with data:', bookingData)
       await createBooking(bookingData)
       
-      router.push(`/booking/confirmation?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
+      router.push(`/booking/payment?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${encodeURIComponent(`${values.firstName} ${values.lastName}`)}&email=${encodeURIComponent(values.email)}`)
     } catch (error) {
       console.error('Booking error:', error)
       toast({
