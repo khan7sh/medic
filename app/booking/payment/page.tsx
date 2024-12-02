@@ -21,6 +21,33 @@ export default function PaymentPage() {
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'inPerson'>()
   const { toast } = useToast()
 
+  // Add this useEffect to store parameters on page load
+  useEffect(() => {
+    const params = {
+      service: searchParams.get('service'),
+      title: searchParams.get('title'),
+      price: searchParams.get('price'),
+      location: searchParams.get('location'),
+      locationName: searchParams.get('locationName'),
+      date: searchParams.get('date'),
+      time: searchParams.get('time'),
+      name: searchParams.get('name'),
+      email: searchParams.get('email')
+    }
+    
+    // Only store if we have the essential parameters
+    if (params.service && params.title && params.price) {
+      localStorage.setItem('bookingParams', JSON.stringify(params))
+    } else {
+      // If we don't have parameters in URL, try to get them from localStorage
+      const storedParams = localStorage.getItem('bookingParams')
+      if (storedParams) {
+        const parsedParams = JSON.parse(storedParams)
+        router.replace(`/booking/payment?${new URLSearchParams(parsedParams).toString()}`)
+      }
+    }
+  }, [searchParams, router])
+
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
   const locationName = searchParams.get('locationName')

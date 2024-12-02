@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       ],
       mode: 'payment',
       success_url: `${baseUrl}/booking/stripe-return`,
-      cancel_url: `${baseUrl}/booking/payment`,
+      cancel_url: `${baseUrl}/booking/payment?${new URLSearchParams(metadata).toString()}`,
       customer_email: email,
       metadata: metadata || {}
     })
