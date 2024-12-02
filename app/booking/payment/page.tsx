@@ -78,9 +78,7 @@ export default function PaymentPage() {
       }
 
       const { error } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-        successUrl: `${window.location.origin}/booking/stripe-return`,
-        cancelUrl: `${window.location.origin}/booking/payment?${window.location.search}`
+        sessionId: data.sessionId
       })
 
       if (error) {

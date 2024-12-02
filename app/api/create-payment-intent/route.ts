@@ -44,8 +44,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${baseUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}&paymentMethod=online`,
-      cancel_url: `${baseUrl}/booking/payment`,
+      success_url: `${baseUrl}/booking/stripe-return`,
+      cancel_url: `${baseUrl}/booking/payment?${Object.entries(session.metadata || {}).map(([key, value]) => `${key}=${value}`).join('&')}`,
       customer_email: email,
     })
 
