@@ -47,7 +47,7 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         {/* Steps */}
         <div className="relative z-10 grid grid-cols-6 w-full">
           {steps.map(({ number, label }) => (
-            <div key={number} className="flex flex-col items-center">
+            <div key={number} className="flex flex-col items-center w-full px-2">
               <div 
                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background ${
                   number === currentStep 
@@ -62,7 +62,7 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
                 </div>
               </div>
               <span 
-                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight max-w-[90px] ${
+                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight min-h-[32px] w-full ${
                   number === currentStep ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >

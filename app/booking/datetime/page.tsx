@@ -150,7 +150,7 @@ export default function DateTimePage() {
   }
 
   const handleBack = () => {
-    router.push(`/booking/locations?service=${serviceId}&price=${servicePrice}&title=${serviceTitle}`)
+    router.push(`/booking/locations?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${locationId}&locationName=${encodeURIComponent(locationName || '')}`)
   }
 
   async function handleBooking() {

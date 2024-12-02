@@ -103,7 +103,7 @@ export default function BookingDetailsForm() {
   }
 
   const handleBack = () => {
-    router.push(`/booking/datetime?service=${serviceId}&title=${serviceTitle}&price=${servicePrice}&location=${location}`)
+    router.push(`/booking/datetime?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${location}&locationName=${encodeURIComponent(searchParams.get('locationName') || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}`)
   }
 
   return (

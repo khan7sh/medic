@@ -11,8 +11,8 @@ import BookingLayout from '@/components/booking/bookingLayout'
 export default function LocationsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedLocation, setSelectedLocation] = useState('')
-  const [selectedLocationName, setSelectedLocationName] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '')
+  const [selectedLocationName, setSelectedLocationName] = useState(searchParams.get('locationName') || '')
 
   const serviceId = searchParams.get('service')
   const serviceTitle = searchParams.get('title')
@@ -24,7 +24,7 @@ export default function LocationsPage() {
   }
 
   const handleBack = () => {
-    router.push(`/booking/services?service=${serviceId}`)
+    router.push(`/booking/services?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}`)
   }
 
   const handleNext = () => {

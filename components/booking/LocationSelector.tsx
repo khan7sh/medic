@@ -35,6 +35,15 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
     fetchLocationsWithFreezes()
   }, [])
 
+  useEffect(() => {
+    if (selectedLocation) {
+      const location = locations.find(loc => loc.id === selectedLocation)
+      if (location) {
+        onLocationChange(location.id, location.name)
+      }
+    }
+  }, [])
+
   async function fetchLocationsWithFreezes() {
     try {
       // Fetch locations
