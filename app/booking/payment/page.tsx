@@ -29,7 +29,6 @@ export default function PaymentPage() {
 
   const handlePayment = async () => {
     if (paymentMethod === 'inPerson') {
-      // Redirect to confirmation with in-person payment status
       router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${servicePrice}&location=${searchParams.get('location')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
       return
     }
@@ -47,22 +46,33 @@ export default function PaymentPage() {
           amount: Number(servicePrice),
           email: email,
           name: name,
-          serviceTitle: serviceTitle,
+          serviceTitle: decodeURIComponent(serviceTitle || ''),
         }),
       })
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Payment session creation failed')
+      }
+
       const { sessionId } = await response.json()
       
+      if (!sessionId) {
+        throw new Error('No session ID returned')
+      }
+
       // Redirect to Stripe Checkout
       const stripe = await stripePromise
-      const { error } = await stripe!.redirectToCheckout({
-        sessionId,
-      })
+      if (!stripe) {
+        throw new Error('Stripe failed to initialize')
+      }
 
+      const { error } = await stripe.redirectToCheckout({ sessionId })
       if (error) throw error
 
     } catch (error) {
       console.error('Payment error:', error)
+      alert('Payment failed: ' + (error as Error).message)
     } finally {
       setIsLoading(false)
     }

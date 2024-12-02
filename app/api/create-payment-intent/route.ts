@@ -6,8 +6,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 export async function POST(req: Request) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return NextResponse.json(
+      { error: 'Stripe secret key is not configured' },
+      { status: 500 }
+    )
+  }
+
   try {
     const { amount, email, name, serviceTitle } = await req.json()
+
+    if (!amount || !email || !name || !serviceTitle) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -35,7 +49,10 @@ export async function POST(req: Request) {
     })
 
     if (!session?.id) {
-      throw new Error('Failed to create session')
+      return NextResponse.json(
+        { error: 'Failed to create session' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ sessionId: session.id })
