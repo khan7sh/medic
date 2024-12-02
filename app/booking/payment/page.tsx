@@ -55,7 +55,8 @@ export default function PaymentPage() {
 
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
-  const locationName = searchParams.get('locationName')
+  const location = searchParams.get('location')
+  const locationName = decodeURIComponent(searchParams.get('locationName') || '')
   const date = searchParams.get('date')
   const time = searchParams.get('time')
   const name = searchParams.get('name')
@@ -150,7 +151,7 @@ export default function PaymentPage() {
             <div className="text-muted-foreground">Service:</div>
             <div>{decodeURIComponent(serviceTitle || '')}</div>
             <div className="text-muted-foreground">Location:</div>
-            <div>{decodeURIComponent(locationName || '')}</div>
+            <div>{locationName}</div>
             <div className="text-muted-foreground">Date & Time:</div>
             <div>{date} at {time}</div>
             <div className="text-muted-foreground">Name:</div>
