@@ -11,7 +11,7 @@ export default function ConfirmationPage() {
   
   const bookingDetails = {
     service: searchParams.get('title'),
-    location: searchParams.get('location'),
+    location: searchParams.get('locationName'),
     date: searchParams.get('date'),
     time: searchParams.get('time'),
     name: searchParams.get('name'),

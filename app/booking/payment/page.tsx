@@ -28,8 +28,23 @@ export default function PaymentPage() {
   const email = searchParams.get('email')
 
   const handlePayment = async () => {
+    // Store booking data in localStorage before payment
+    const bookingData = {
+      service: searchParams.get('service'),
+      title: searchParams.get('title'),
+      price: servicePrice,
+      location: searchParams.get('location'),
+      locationName: locationName,
+      date: date,
+      time: time,
+      name: name,
+      email: email,
+      paymentMethod: paymentMethod
+    }
+    localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
+
     if (paymentMethod === 'inPerson') {
-      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${servicePrice}&location=${searchParams.get('location')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
+      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${servicePrice}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
       return
     }
 
@@ -64,6 +79,8 @@ export default function PaymentPage() {
 
       const { error } = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
+        successUrl: `${window.location.origin}/booking/stripe-return`,
+        cancelUrl: `${window.location.origin}/booking/payment?${window.location.search}`
       })
 
       if (error) {
@@ -105,7 +122,7 @@ export default function PaymentPage() {
             <div className="text-muted-foreground">Email:</div>
             <div>{email}</div>
             <div className="text-muted-foreground font-medium">Total Amount:</div>
-            <div className="font-medium text-primary">£{servicePrice}</div>
+            <div className="font-semibold">£{servicePrice}</div>
           </div>
           
           <PaymentMethodSelector
@@ -136,18 +153,27 @@ export default function PaymentPage() {
         </Button>
         <Button
           onClick={handlePayment}
-          disabled={isLoading || !paymentMethod}
+          disabled={!paymentMethod || isLoading}
           className="w-full sm:w-auto"
         >
           {isLoading ? (
-            'Processing...'
-          ) : paymentMethod === 'online' ? (
-            <>
-              <CreditCard className="mr-2 h-4 w-4" />
-              Pay £{servicePrice} Now
-            </>
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              Processing...
+            </div>
           ) : (
-            'Confirm Booking'
+            <>
+              {paymentMethod === 'online' ? (
+                <>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Pay Now
+                </>
+              ) : (
+                <>
+                  Pay at Clinic
+                </>
+              )}
+            </>
           )}
         </Button>
       </div>
