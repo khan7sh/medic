@@ -35,8 +35,8 @@ export default function PaymentPage() {
 
     try {
       setIsLoading(true)
+      console.log('Starting payment process...');
       
-      // Create a payment session
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
@@ -50,25 +50,26 @@ export default function PaymentPage() {
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Payment session creation failed')
-      }
-
-      const { sessionId } = await response.json()
+      const data = await response.json()
       
-      if (!sessionId) {
-        throw new Error('No session ID returned')
+      if (!response.ok) {
+        throw new Error(data.error || 'Payment session creation failed')
       }
 
-      // Redirect to Stripe Checkout
+      console.log('Session created, redirecting to Stripe...');
       const stripe = await stripePromise
       if (!stripe) {
         throw new Error('Stripe failed to initialize')
       }
 
-      const { error } = await stripe.redirectToCheckout({ sessionId })
-      if (error) throw error
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: data.sessionId,
+      })
+
+      if (error) {
+        console.error('Stripe redirect error:', error);
+        throw error
+      }
 
     } catch (error) {
       console.error('Payment error:', error)
