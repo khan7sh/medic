@@ -29,9 +29,9 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         <div 
           className="absolute top-5 h-0.5 bg-muted"
           style={{ 
-            left: '2.5%',
-            right: '2.5%',
-            width: '95%'
+            left: 'calc(8.33% + 20px)',
+            right: 'calc(8.33% + 20px)',
+            width: '83.33%'
           }}
         />
         
@@ -39,8 +39,8 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         <div 
           className="absolute top-5 h-0.5 bg-primary transition-all duration-500"
           style={{ 
-            left: '2.5%',
-            width: `${progressPercentage * 0.95}%`
+            left: 'calc(8.33% + 20px)',
+            width: `${progressPercentage * 0.8333}%`
           }}
         />
         
