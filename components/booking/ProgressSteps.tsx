@@ -24,14 +24,14 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
 
   return (
     <div className="mb-12">
-      <div className="relative flex justify-between max-w-3xl mx-auto px-4">
+      <div className="relative max-w-4xl mx-auto px-4">
         {/* Progress Bar Background */}
         <div 
           className="absolute top-5 h-0.5 bg-muted"
           style={{ 
-            left: 'calc(12.5% + 5px)',
-            right: 'calc(12.5% + 5px)',
-            width: '75%'
+            left: '10%',
+            right: '10%',
+            width: '80%'
           }}
         />
         
@@ -39,15 +39,15 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         <div 
           className="absolute top-5 h-0.5 bg-primary transition-all duration-500"
           style={{ 
-            left: 'calc(12.5% + 5px)',
-            width: `${progressPercentage * 0.75}%`
+            left: '10%',
+            width: `${progressPercentage * 0.8}%`
           }}
         />
         
         {/* Steps */}
-        <div className="relative z-10 grid grid-cols-4 w-full">
+        <div className="relative z-10 flex justify-between">
           {steps.map(({ number, label }) => (
-            <div key={number} className="flex flex-col items-center">
+            <div key={number} className="flex flex-col items-center w-20">
               <div 
                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background ${
                   number === currentStep 
@@ -62,7 +62,7 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
                 </div>
               </div>
               <span 
-                className={`mt-4 text-sm font-medium text-center ${
+                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight ${
                   number === currentStep ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
