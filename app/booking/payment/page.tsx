@@ -28,7 +28,7 @@ export default function PaymentPage() {
       title: searchParams.get('title'),
       price: searchParams.get('price'),
       location: searchParams.get('location'),
-      locationName: searchParams.get('locationName'),
+      locationName: decodeURIComponent(searchParams.get('locationName') || ''),
       date: searchParams.get('date'),
       time: searchParams.get('time'),
       name: searchParams.get('name'),
@@ -43,7 +43,12 @@ export default function PaymentPage() {
       const storedParams = localStorage.getItem('bookingParams')
       if (storedParams) {
         const parsedParams = JSON.parse(storedParams)
-        router.replace(`/booking/payment?${new URLSearchParams(parsedParams).toString()}`)
+        // Ensure locationName is properly encoded in the URL
+        const searchParams = new URLSearchParams({
+          ...parsedParams,
+          locationName: encodeURIComponent(parsedParams.locationName || '')
+        })
+        router.replace(`/booking/payment?${searchParams.toString()}`)
       }
     }
   }, [searchParams, router])
