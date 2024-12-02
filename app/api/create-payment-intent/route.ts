@@ -14,19 +14,20 @@ export async function POST(req: Request) {
     )
   }
 
+  if (!process.env.NEXT_PUBLIC_BASE_URL) {
+    console.error('Missing base URL');
+    return NextResponse.json(
+      { error: 'Configuration error: Base URL not set' },
+      { status: 500 }
+    )
+  }
+
   try {
     const { amount, email, name, serviceTitle } = await req.json()
     console.log('Received payment request:', { amount, email, name, serviceTitle });
 
-    if (!amount || !email || !name || !serviceTitle) {
-      console.error('Missing required fields:', { amount, email, name, serviceTitle });
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
 
-    console.log('Creating Stripe session with amount:', amount * 100);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -37,18 +38,17 @@ export async function POST(req: Request) {
               name: serviceTitle,
               description: `Medical Assessment Booking for ${name}`,
             },
-            unit_amount: Math.round(amount * 100), // Ensure integer amount
+            unit_amount: Math.round(amount * 100),
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}&paymentMethod=online`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/payment`,
+      success_url: `${baseUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}&paymentMethod=online`,
+      cancel_url: `${baseUrl}/booking/payment`,
       customer_email: email,
     })
 
-    console.log('Session created:', session.id);
     return NextResponse.json({ sessionId: session.id })
   } catch (error) {
     console.error('Stripe session error:', error);
