@@ -53,10 +53,26 @@ export default function PaymentPage() {
     }
   }, [searchParams, router])
 
+  useEffect(() => {
+    console.log('Current URL params:', {
+      service: searchParams.get('service'),
+      title: searchParams.get('title'),
+      price: searchParams.get('price'),
+      location: searchParams.get('location'),
+      locationName: searchParams.get('locationName'),
+      date: searchParams.get('date'),
+      time: searchParams.get('time'),
+      name: searchParams.get('name'),
+      email: searchParams.get('email')
+    })
+  }, [searchParams])
+
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
   const location = searchParams.get('location')
-  const locationName = decodeURIComponent(searchParams.get('locationName') || '')
+  const locationName = searchParams.get('locationName')
+    ? decodeURIComponent(searchParams.get('locationName') || '')
+    : 'Location not found'
   const date = searchParams.get('date')
   const time = searchParams.get('time')
   const name = searchParams.get('name')
@@ -151,7 +167,7 @@ export default function PaymentPage() {
             <div className="text-muted-foreground">Service:</div>
             <div>{decodeURIComponent(serviceTitle || '')}</div>
             <div className="text-muted-foreground">Location:</div>
-            <div>{locationName}</div>
+            <div>{locationName || 'No location selected'}</div>
             <div className="text-muted-foreground">Date & Time:</div>
             <div>{date} at {time}</div>
             <div className="text-muted-foreground">Name:</div>
