@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { amount, email, name, serviceTitle } = await req.json()
+    const { amount, email, name, serviceTitle, metadata } = await req.json()
     console.log('Received payment request:', { amount, email, name, serviceTitle });
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, ''); // Remove trailing slash if present
@@ -45,8 +45,9 @@ export async function POST(req: Request) {
       ],
       mode: 'payment',
       success_url: `${baseUrl}/booking/stripe-return`,
-      cancel_url: `${baseUrl}/booking/payment?${Object.entries(session.metadata || {}).map(([key, value]) => `${key}=${value}`).join('&')}`,
+      cancel_url: `${baseUrl}/booking/payment?${window.location.search}`,
       customer_email: email,
+      metadata: metadata || {}
     })
 
     return NextResponse.json({ sessionId: session.id })

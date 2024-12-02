@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, CreditCard, Lock, AlertCircle } from 'lucide-react'
 import PaymentMethodSelector from '@/components/booking/PaymentMethodSelector'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useToast } from '@/components/ui/use-toast'
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -18,6 +19,7 @@ export default function PaymentPage() {
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'inPerson'>()
+  const { toast } = useToast()
 
   const serviceTitle = searchParams.get('title')
   const servicePrice = searchParams.get('price')
@@ -50,7 +52,7 @@ export default function PaymentPage() {
 
     try {
       setIsLoading(true)
-      console.log('Starting payment process...');
+      console.log('Starting payment process...')
       
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
@@ -62,6 +64,9 @@ export default function PaymentPage() {
           email: email,
           name: name,
           serviceTitle: decodeURIComponent(serviceTitle || ''),
+          metadata: {
+            ...bookingData
+          }
         }),
       })
 
@@ -71,7 +76,6 @@ export default function PaymentPage() {
         throw new Error(data.error || 'Payment session creation failed')
       }
 
-      console.log('Session created, redirecting to Stripe...');
       const stripe = await stripePromise
       if (!stripe) {
         throw new Error('Stripe failed to initialize')
@@ -82,13 +86,15 @@ export default function PaymentPage() {
       })
 
       if (error) {
-        console.error('Stripe redirect error:', error);
         throw error
       }
-
     } catch (error) {
       console.error('Payment error:', error)
-      alert('Payment failed: ' + (error as Error).message)
+      toast({
+        title: "Payment Failed",
+        description: error instanceof Error ? error.message : "An error occurred during payment",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
