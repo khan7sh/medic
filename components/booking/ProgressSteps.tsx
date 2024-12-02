@@ -29,9 +29,9 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         <div 
           className="absolute top-5 h-0.5 bg-muted"
           style={{ 
-            left: '10%',
-            right: '10%',
-            width: '80%'
+            left: '2.5%',
+            right: '2.5%',
+            width: '95%'
           }}
         />
         
@@ -39,15 +39,15 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
         <div 
           className="absolute top-5 h-0.5 bg-primary transition-all duration-500"
           style={{ 
-            left: '10%',
-            width: `${progressPercentage * 0.8}%`
+            left: '2.5%',
+            width: `${progressPercentage * 0.95}%`
           }}
         />
         
         {/* Steps */}
-        <div className="relative z-10 flex justify-between">
+        <div className="relative z-10 grid grid-cols-6 w-full">
           {steps.map(({ number, label }) => (
-            <div key={number} className="flex flex-col items-center w-20">
+            <div key={number} className="flex flex-col items-center">
               <div 
                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background ${
                   number === currentStep 
@@ -62,7 +62,7 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
                 </div>
               </div>
               <span 
-                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight ${
+                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight max-w-[90px] ${
                   number === currentStep ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
