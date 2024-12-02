@@ -44,7 +44,7 @@ export default function PaymentPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Number(servicePrice) * 100, // Convert to cents
+          amount: Number(servicePrice),
           email: email,
           name: name,
           serviceTitle: serviceTitle,

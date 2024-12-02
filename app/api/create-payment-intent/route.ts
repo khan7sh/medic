@@ -19,16 +19,24 @@ export async function POST(req: Request) {
               name: serviceTitle,
               description: `Medical Assessment Booking for ${name}`,
             },
-            unit_amount: amount,
+            unit_amount: amount * 100,
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}&paymentMethod=online`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/payment`,
       customer_email: email,
+      metadata: {
+        service_title: serviceTitle,
+        customer_name: name
+      }
     })
+
+    if (!session?.id) {
+      throw new Error('Failed to create session')
+    }
 
     return NextResponse.json({ sessionId: session.id })
   } catch (error) {
