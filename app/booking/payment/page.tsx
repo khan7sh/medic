@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Elements } from '@stripe/stripe-js'
+import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import BookingLayout from '@/components/booking/bookingLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

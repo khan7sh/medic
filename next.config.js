@@ -15,6 +15,17 @@ const nextConfig = {
   },
   experimental: {
     serverActions: true
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        ws: false,
+        bufferutil: false,
+        'utf-8-validate': false
+      }
+    }
+    return config
   }
 }
 
