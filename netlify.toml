@@ -7,8 +7,6 @@
   NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--legacy-peer-deps"
   NEXT_PUBLIC_ENABLE_IMAGE_OPTIMIZATION = "true"
-  NEXT_PUBLIC_SUPABASE_URL = "${NEXT_PUBLIC_SUPABASE_URL}"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY = "${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
