@@ -89,11 +89,16 @@ export default function BookingDetailsForm() {
       }
 
       console.log('Attempting to create booking with data:', bookingData)
-      await createBooking(bookingData)
+      const booking = await createBooking(bookingData)
       
+      if (!booking?.id) {
+        throw new Error('Booking creation failed - no booking ID returned')
+      }
+
       router.push(
         `/booking/payment?` +
-        `service=${searchParams.get('service')}` +
+        `bookingId=${booking.id}` +
+        `&service=${searchParams.get('service')}` +
         `&title=${searchParams.get('title')}` +
         `&price=${searchParams.get('price')}` +
         `&location=${searchParams.get('location')}` +

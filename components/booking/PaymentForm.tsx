@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button'
 import { handleStripePayment } from '@/services/paymentService'
 import { useToast } from '@/hooks/use-toast'
 
-export default function PaymentForm() {
+interface PaymentFormProps {
+  clientSecret: string;
+}
+
+export default function PaymentForm({ clientSecret }: PaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
