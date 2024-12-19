@@ -44,7 +44,25 @@ export default function PaymentForm({ clientSecret }: PaymentFormProps) {
       }
 
       if (paymentIntent.status === 'succeeded') {
-        router.push('/booking/confirmation')
+        // Get the current URL search params
+        const currentParams = new URLSearchParams(window.location.search)
+        
+        // Construct confirmation URL with all necessary parameters
+        const params = new URLSearchParams({
+          service: currentParams.get('service') || '',
+          title: currentParams.get('title') || '',
+          price: currentParams.get('price') || '',
+          location: currentParams.get('location') || '',
+          locationName: currentParams.get('locationName') || '',
+          date: currentParams.get('date') || '',
+          time: currentParams.get('time') || '',
+          name: currentParams.get('name') || '',
+          email: currentParams.get('email') || '',
+          paymentMethod: 'online',
+          paymentStatus: 'paid'
+        })
+
+        router.push(`/booking/confirmation?${params.toString()}`)
       }
     } catch (error) {
       console.error('Payment error:', error)

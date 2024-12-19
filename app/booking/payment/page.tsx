@@ -145,7 +145,7 @@ export default function PaymentPage() {
 
       {clientSecret && paymentMethod === 'online' && (
         <Elements stripe={stripePromise} options={{ clientSecret }}>
-          <PaymentForm />
+          <PaymentForm clientSecret={clientSecret} />
         </Elements>
       )}
 
