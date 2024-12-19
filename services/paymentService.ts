@@ -2,41 +2,30 @@ import { supabase } from '@/lib/supabase';
 import { PaymentIntent, PaymentMetadata } from '@/types/payment';
 import { createStripePaymentIntent, retrievePaymentIntent } from './stripeService';
 
-export async function createPaymentIntent(amount: number, metadata: PaymentMetadata) {
-  try {
-    // First update booking record
-    const { data: booking, error: bookingError } = await supabase
-      .from('bookings')
-      .update({
-        payment_status: 'pending',
-        payment_method: 'online',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', metadata.bookingId)
-      .select()
-      .single()
-
-    if (bookingError) throw bookingError
-
-    const paymentIntent = await createStripePaymentIntent(amount, metadata)
-    
-    // Update booking with payment intent ID
-    await supabase
-      .from('bookings')
-      .update({ 
-        payment_intent_id: paymentIntent.id,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', metadata.bookingId)
-
-    return {
-      clientSecret: paymentIntent.client_secret,
-      id: paymentIntent.id
-    }
-  } catch (error) {
-    console.error('Payment intent creation error:', error)
-    throw error
+interface PaymentIntentRequest {
+  amount: number
+  metadata: {
+    bookingId: string
+    serviceTitle: string
+    customerName: string
+    customerEmail: string
   }
+}
+
+export async function createPaymentIntent({ amount, metadata }: PaymentIntentRequest) {
+  const response = await fetch('/api/create-payment-intent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ amount, metadata }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to create payment intent')
+  }
+
+  return response.json()
 }
 
 export async function verifyPaymentStatus(paymentIntentId: string) {
@@ -69,12 +58,12 @@ export async function updatePaymentStatus(bookingId: string, status: string, pay
         payment_intent_id: paymentIntentId,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', bookingId);
+      .eq('id', bookingId)
 
-    if (error) throw error;
+    if (error) throw error
   } catch (error) {
-    console.error('Payment status update error:', error);
-    throw error;
+    console.error('Payment status update error:', error)
+    throw error
   }
 }
 

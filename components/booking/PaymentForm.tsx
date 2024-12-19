@@ -1,83 +1,80 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CardElement, useStripe, useElements } from '@stripe/stripe-js'
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { Button } from '@/components/ui/button'
-import { handleStripePayment } from '@/services/paymentService'
+import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { createPaymentIntent, updatePaymentStatus } from '@/services/paymentService'
 
 interface PaymentFormProps {
-  clientSecret: string;
+  amount: number
+  bookingId: string
+  metadata: {
+    serviceTitle: string
+    customerName: string
+    customerEmail: string
+  }
 }
 
-export default function PaymentForm({ clientSecret }: PaymentFormProps) {
+export default function PaymentForm({ amount, bookingId, metadata }: PaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const [isProcessing, setIsProcessing] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!stripe || !elements) return
 
-    if (!stripe || !elements) {
-      return
-    }
+    setIsLoading(true)
 
     try {
-      setIsProcessing(true)
-      const cardElement = elements.getElement(CardElement)
-      if (!cardElement) throw new Error('Card element not found')
-
-      const { error, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method: {
-            card: cardElement,
-          },
+      // Create payment intent
+      const { clientSecret, id: paymentIntentId } = await createPaymentIntent({
+        amount,
+        metadata: {
+          bookingId,
+          ...metadata
         }
-      )
+      })
 
-      if (error) {
-        throw error
+      // Update booking with payment intent ID
+      await updatePaymentStatus(bookingId, 'pending', paymentIntentId)
+
+      // Confirm card payment
+      const { error: stripeError } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+          billing_details: {
+            name: metadata.customerName,
+            email: metadata.customerEmail
+          }
+        }
+      })
+
+      if (stripeError) {
+        throw new Error(stripeError.message)
       }
 
-      if (paymentIntent.status === 'succeeded') {
-        // Get the current URL search params
-        const currentParams = new URLSearchParams(window.location.search)
-        
-        // Construct confirmation URL with all necessary parameters
-        const params = new URLSearchParams({
-          service: currentParams.get('service') || '',
-          title: currentParams.get('title') || '',
-          price: currentParams.get('price') || '',
-          location: currentParams.get('location') || '',
-          locationName: currentParams.get('locationName') || '',
-          date: currentParams.get('date') || '',
-          time: currentParams.get('time') || '',
-          name: currentParams.get('name') || '',
-          email: currentParams.get('email') || '',
-          paymentMethod: 'online',
-          paymentStatus: 'paid'
-        })
-
-        router.push(`/booking/confirmation?${params.toString()}`)
-      }
+      // Payment successful - redirect to return URL
+      router.push(`/booking/return?payment_intent=${paymentIntentId}`)
     } catch (error) {
       console.error('Payment error:', error)
       toast({
-        title: "Payment Failed",
-        description: error instanceof Error ? error.message : "Payment processing failed",
-        variant: "destructive",
+        title: 'Payment Failed',
+        description: error instanceof Error ? error.message : 'An error occurred during payment',
+        variant: 'destructive'
       })
     } finally {
-      setIsProcessing(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="p-4 border rounded-lg">
         <CardElement
           options={{
@@ -86,22 +83,29 @@ export default function PaymentForm({ clientSecret }: PaymentFormProps) {
                 fontSize: '16px',
                 color: '#424770',
                 '::placeholder': {
-                  color: '#aab7c4',
-                },
+                  color: '#aab7c4'
+                }
               },
               invalid: {
-                color: '#9e2146',
-              },
-            },
+                color: '#9e2146'
+              }
+            }
           }}
         />
       </div>
       <Button
         type="submit"
-        disabled={!stripe || isProcessing}
+        disabled={!stripe || isLoading}
         className="w-full"
       >
-        {isProcessing ? 'Processing...' : 'Pay Now'}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          'Pay Now'
+        )}
       </Button>
     </form>
   )
