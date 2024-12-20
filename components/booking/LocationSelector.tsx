@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { MapPin, AlertCircle } from 'lucide-react'
+import { MapPin, AlertCircle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { format } from 'date-fns'
 
@@ -24,7 +24,7 @@ interface Location {
 
 interface LocationSelectorProps {
   selectedLocation: string
-  onLocationChange: (location: string) => void
+  onLocationChange: (locationId: string, locationName: string) => void
 }
 
 export default function LocationSelector({ selectedLocation, onLocationChange }: LocationSelectorProps) {
@@ -35,25 +35,15 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
     fetchLocationsWithFreezes()
   }, [])
 
-  useEffect(() => {
-    if (selectedLocation) {
-      const location = locations.find(loc => loc.id === selectedLocation)
-      if (location) {
-        onLocationChange(location.id, location.name)
-      }
-    }
-  }, [])
-
   async function fetchLocationsWithFreezes() {
     try {
-      // Fetch locations
       const { data: locationsData, error: locationsError } = await supabase
         .from('locations')
         .select('*')
+        .order('name')
 
       if (locationsError) throw locationsError
 
-      // Fetch today's freezes
       const today = format(new Date(), 'yyyy-MM-dd')
       const { data: freezesData, error: freezesError } = await supabase
         .from('location_freezes')
@@ -62,16 +52,13 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
 
       if (freezesError) throw freezesError
 
-      // Combine locations with freeze data
-      const locationsWithFreezes = locationsData.map(location => {
-        const freeze = freezesData?.find(f => f.location_id === location.id)
-        return {
-          ...location,
-          isFrozen: !!freeze,
-          freezeReason: freeze?.reason
-        }
-      })
+      const locationsWithFreezes = locationsData.map(location => ({
+        ...location,
+        isFrozen: freezesData?.some(f => f.location_id === location.id),
+        freezeReason: freezesData?.find(f => f.location_id === location.id)?.reason
+      }))
 
+      console.log('Fetched locations:', locationsWithFreezes)
       setLocations(locationsWithFreezes)
       setLoading(false)
     } catch (error) {
@@ -81,9 +68,20 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
   }
 
   const handleLocationSelect = (locationId: string) => {
-    const selectedLocation = locations.find(loc => loc.id === locationId)
-    const locationDisplay = selectedLocation ? `${selectedLocation.name} (${selectedLocation.postcode})` : ''
-    onLocationChange(locationId, locationDisplay)
+    const location = locations.find(loc => loc.id === locationId)
+    if (location) {
+      onLocationChange(locationId, `${location.name} (${location.postcode})`)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-6">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -107,7 +105,7 @@ export default function LocationSelector({ selectedLocation, onLocationChange }:
                 value={location.id}
                 disabled={location.isFrozen}
               >
-                {location.name}
+                {location.name} ({location.postcode})
               </SelectItem>
             ))}
           </SelectContent>
