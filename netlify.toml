@@ -7,8 +7,10 @@
   NODE_VERSION = "18.17.0"
   NPM_FLAGS = "--legacy-peer-deps"
   NEXT_PUBLIC_ENABLE_IMAGE_OPTIMIZATION = "true"
-  NEXT_PUBLIC_SUPABASE_URL = "${NEXT_PUBLIC_SUPABASE_URL}"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY = "${NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+  NEXT_PUBLIC_SUPABASE_URL = "https://wcibcmkevozvscyjusuk.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjaWJjbWtldm96dnNjeWp1c3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAxNTY0MDgsImV4cCI6MjA0NTczMjQwOH0.4N983iX9w5a9nJCTsOMOvhG9RR3amw_ecolYGEEkutY
+
+"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
