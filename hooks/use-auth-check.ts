@@ -20,7 +20,7 @@ export function useAuthCheck() {
       }
     }
 
-    // Initial check
+    // Initial check 
     checkAuth()
 
     // Subscribe to auth changes

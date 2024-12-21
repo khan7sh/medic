@@ -10,9 +10,15 @@ import { ArrowLeft, CreditCard, Lock, AlertCircle } from 'lucide-react'
 import PaymentMethodSelector from '@/components/booking/PaymentMethodSelector'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
+import { Input } from '@/components/ui/input'
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+// Add at the top with other imports
+const VALID_DISCOUNT_CODES = {
+  '2025D': 5 // £5 discount
+}
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -20,6 +26,9 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'inPerson'>()
   const { toast } = useToast()
+  const [discountCode, setDiscountCode] = useState('')
+  const [appliedDiscount, setAppliedDiscount] = useState(0)
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false)
 
   // Add this useEffect to store parameters on page load
   useEffect(() => {
@@ -79,23 +88,29 @@ export default function PaymentPage() {
   const email = searchParams.get('email')
 
   const handlePayment = async () => {
+    const finalAmount = Number(servicePrice) - appliedDiscount
+    
     // Store booking data in localStorage before payment
     const bookingData = {
       service: searchParams.get('service'),
       title: searchParams.get('title'),
-      price: servicePrice,
+      price: finalAmount,
       location: searchParams.get('location'),
       locationName: locationName,
       date: date,
       time: time,
       name: name,
       email: email,
-      paymentMethod: paymentMethod
+      paymentMethod: paymentMethod,
+      discountApplied: appliedDiscount > 0 ? {
+        code: discountCode.toUpperCase(),
+        amount: appliedDiscount
+      } : null
     }
     localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
 
     if (paymentMethod === 'inPerson') {
-      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${servicePrice}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
+      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${finalAmount}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
       return
     }
 
@@ -109,7 +124,7 @@ export default function PaymentPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Number(servicePrice),
+          amount: Number(finalAmount),
           email: email,
           name: name,
           serviceTitle: decodeURIComponent(serviceTitle || ''),
@@ -149,6 +164,33 @@ export default function PaymentPage() {
     }
   }
 
+  const handleApplyDiscount = () => {
+    setIsApplyingDiscount(true)
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      const discount = VALID_DISCOUNT_CODES[discountCode.toUpperCase()]
+      
+      if (discount) {
+        setAppliedDiscount(discount)
+        toast({
+          title: "Discount Applied",
+          description: `£${discount} discount has been applied to your booking`,
+        })
+      } else {
+        toast({
+          title: "Invalid Code",
+          description: "Please enter a valid discount code",
+          variant: "destructive",
+        })
+      }
+      
+      setIsApplyingDiscount(false)
+    }, 500)
+  }
+
+  const finalPrice = Number(servicePrice) - appliedDiscount
+
   return (
     <BookingLayout
       currentStep={5}
@@ -178,6 +220,33 @@ export default function PaymentPage() {
             <div className="font-semibold">£{servicePrice}</div>
           </div>
           
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter discount code"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+              />
+              <Button 
+                variant="outline" 
+                onClick={handleApplyDiscount}
+                disabled={!discountCode || isApplyingDiscount}
+              >
+                {isApplyingDiscount ? 'Applying...' : 'Apply'}
+              </Button>
+            </div>
+            {appliedDiscount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Discount applied:</span>
+                <span className="text-primary font-medium">-£{appliedDiscount}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-medium">
+              <span>Final Price:</span>
+              <span className="text-primary">£{finalPrice}</span>
+            </div>
+          </div>
+
           <PaymentMethodSelector
             onSelect={setPaymentMethod}
             selectedMethod={paymentMethod}

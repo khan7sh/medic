@@ -19,3 +19,7 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
+export default function imageLoader({ src }) {
+  return src
+}
