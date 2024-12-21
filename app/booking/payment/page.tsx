@@ -19,7 +19,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: string }> = {
   '2025D': {
     amount: 5,
-    expiresAt: '2025-12-31' // Example expiration date
+    expiresAt: '2025-12-31'
   }
 }
 
@@ -100,23 +100,24 @@ export default function PaymentPage() {
   const handlePayment = async () => {
     const finalAmount = Number(servicePrice) - appliedDiscount
     
-    // Store booking data in localStorage before payment
     const bookingData = {
       service: searchParams.get('service'),
       title: searchParams.get('title'),
       price: finalAmount,
+      originalPrice: Number(servicePrice),
+      discountApplied: appliedDiscount > 0 ? {
+        code: discountCode.toUpperCase(),
+        amount: appliedDiscount
+      } : null,
       location: searchParams.get('location'),
       locationName: locationName,
       date: date,
       time: time,
       name: name,
       email: email,
-      paymentMethod: paymentMethod,
-      discountApplied: appliedDiscount > 0 ? {
-        code: discountCode.toUpperCase(),
-        amount: appliedDiscount
-      } : null
+      paymentMethod: paymentMethod
     }
+    
     localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
 
     if (paymentMethod === 'inPerson') {
@@ -255,15 +256,21 @@ export default function PaymentPage() {
               </Button>
             </div>
             {appliedDiscount > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Discount applied:</span>
-                <span className="text-primary font-medium">-£{appliedDiscount}</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Original Price:</span>
+                  <span>£{servicePrice}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Discount:</span>
+                  <span className="text-primary font-medium">-£{appliedDiscount}</span>
+                </div>
+                <div className="flex justify-between font-medium border-t pt-2">
+                  <span>Final Price:</span>
+                  <span className="text-primary">£{finalPrice}</span>
+                </div>
               </div>
             )}
-            <div className="flex justify-between font-medium">
-              <span>Final Price:</span>
-              <span className="text-primary">£{finalPrice}</span>
-            </div>
           </div>
 
           <PaymentMethodSelector
