@@ -16,8 +16,11 @@ import { Input } from '@/components/ui/input'
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // Add at the top with other imports
-const VALID_DISCOUNT_CODES = {
-  '2025D': 5 // £5 discount
+const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: string }> = {
+  '2025D': {
+    amount: 5,
+    expiresAt: '2025-12-31' // Example expiration date
+  }
 }
 
 export default function PaymentPage() {
@@ -29,6 +32,13 @@ export default function PaymentPage() {
   const [discountCode, setDiscountCode] = useState('')
   const [appliedDiscount, setAppliedDiscount] = useState(0)
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false)
+  const [usedDiscountCodes, setUsedDiscountCodes] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('usedDiscountCodes')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
 
   // Add this useEffect to store parameters on page load
   useEffect(() => {
@@ -167,26 +177,35 @@ export default function PaymentPage() {
   const handleApplyDiscount = () => {
     setIsApplyingDiscount(true)
     
-    // Simulate API call delay
-    setTimeout(() => {
-      const discount = VALID_DISCOUNT_CODES[discountCode.toUpperCase()]
-      
-      if (discount) {
-        setAppliedDiscount(discount)
+    const upperCaseCode = discountCode.toUpperCase()
+    const discountData = VALID_DISCOUNT_CODES[upperCaseCode]
+    
+    if (discountData) {
+      // Check if code has expired
+      if (new Date(discountData.expiresAt) < new Date()) {
         toast({
-          title: "Discount Applied",
-          description: `£${discount} discount has been applied to your booking`,
-        })
-      } else {
-        toast({
-          title: "Invalid Code",
-          description: "Please enter a valid discount code",
+          title: "Code Expired",
+          description: "This discount code has expired",
           variant: "destructive",
         })
+        setIsApplyingDiscount(false)
+        return
       }
-      
-      setIsApplyingDiscount(false)
-    }, 500)
+
+      setAppliedDiscount(discountData.amount)
+      toast({
+        title: "Discount Applied",
+        description: `£${discountData.amount} discount has been applied to your booking`,
+      })
+    } else {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a valid discount code",
+        variant: "destructive",
+      })
+    }
+    
+    setIsApplyingDiscount(false)
   }
 
   const finalPrice = Number(servicePrice) - appliedDiscount
