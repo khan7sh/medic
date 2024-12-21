@@ -3,3 +3,4 @@
 .temp
 .env
 .next
+.node_modules
