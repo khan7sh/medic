@@ -196,6 +196,19 @@ export default function PaymentPage() {
 
   const finalPrice = Number(servicePrice) - appliedDiscount
 
+  const handleBack = () => {
+    const params = new URLSearchParams({
+      service: searchParams.get('service') || '',
+      title: searchParams.get('title') || '',
+      price: searchParams.get('price') || '',
+      location: searchParams.get('location') || '',
+      locationName: searchParams.get('locationName') || '',
+      date: searchParams.get('date') || '',
+      time: searchParams.get('time') || ''
+    })
+    router.push(`/booking/details?${params.toString()}`)
+  }
+
   return (
     <BookingLayout
       currentStep={5}
@@ -278,11 +291,11 @@ export default function PaymentPage() {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <Button
           variant="outline"
-          onClick={() => router.back()}
+          onClick={handleBack}
           className="w-full sm:w-auto"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          Back to Details
         </Button>
         <Button
           onClick={handlePayment}

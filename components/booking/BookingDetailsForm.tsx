@@ -38,12 +38,6 @@ const formSchema = z.object({
   license: z.string().optional(),
   vehicleType: z.string().optional(),
   employer: z.string().optional(),
-  voucherCode: z.string()
-    .optional()
-    .refine(
-      validateVoucherCode,
-      'Invalid or expired voucher code'
-    ),
   hearAboutUs: z.string().min(1, 'Please tell us how you heard about us'),
   termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms'),
   marketingConsent: z.boolean().optional(),
@@ -87,7 +81,6 @@ export default function BookingDetailsForm() {
         license: values.license,
         vehicle_type: values.vehicleType,
         employer: values.employer,
-        voucher_code: values.voucherCode,
         hear_about_us: values.hearAboutUs,
         marketing_consent: values.marketingConsent || false,
         payment_method: undefined,
@@ -252,31 +245,6 @@ export default function BookingDetailsForm() {
                   <Input placeholder="Employer name" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="voucherCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Voucher Code</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Enter voucher code (if any)"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value.toUpperCase()
-                      field.onChange(value)
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-                {field.value && VALID_DISCOUNT_CODES[field.value] && (
-                  <p className="text-sm text-primary">
-                    £{VALID_DISCOUNT_CODES[field.value].amount} discount will be applied at checkout
-                  </p>
-                )}
               </FormItem>
             )}
           />
