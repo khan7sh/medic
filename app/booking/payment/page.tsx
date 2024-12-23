@@ -11,7 +11,7 @@ import PaymentMethodSelector from '@/components/booking/PaymentMethodSelector'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { Input } from '@/components/ui/input'
-import { VALID_DISCOUNT_CODES } from '@/constants/discounts'
+import { VALID_DISCOUNT_CODES, validateVoucherCode } from '@/constants/discounts'
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -171,33 +171,24 @@ export default function PaymentPage() {
   const handleApplyDiscount = () => {
     setIsApplyingDiscount(true)
     
-    const upperCaseCode = discountCode.toUpperCase()
-    const discountData = VALID_DISCOUNT_CODES[upperCaseCode]
-    
-    if (discountData) {
-      // Check if code has expired
-      if (new Date(discountData.expiresAt) < new Date()) {
-        toast({
-          title: "Code Expired",
-          description: "This discount code has expired",
-          variant: "destructive",
-        })
-        setIsApplyingDiscount(false)
-        return
-      }
-
-      setAppliedDiscount(discountData.amount)
-      toast({
-        title: "Discount Applied",
-        description: `£${discountData.amount} discount has been applied to your booking`,
-      })
-    } else {
+    if (!validateVoucherCode(discountCode)) {
       toast({
         title: "Invalid Code",
         description: "Please enter a valid discount code",
         variant: "destructive",
       })
+      setIsApplyingDiscount(false)
+      return
     }
+
+    const upperCaseCode = discountCode.toUpperCase()
+    const discountData = VALID_DISCOUNT_CODES[upperCaseCode]
+    
+    setAppliedDiscount(discountData.amount)
+    toast({
+      title: "Discount Applied",
+      description: `£${discountData.amount} discount has been applied to your booking`,
+    })
     
     setIsApplyingDiscount(false)
   }

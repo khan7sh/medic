@@ -26,7 +26,7 @@ import * as z from 'zod'
 import Link from 'next/link'
 import { createBooking } from '@/services/bookingService'
 import { useToast } from '@/hooks/use-toast'
-import { VALID_DISCOUNT_CODES } from '@/constants/discounts'
+import { VALID_DISCOUNT_CODES, validateVoucherCode } from '@/constants/discounts'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -121,17 +121,6 @@ export default function BookingDetailsForm() {
 
   const handleBack = () => {
     router.push(`/booking/datetime?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${location}&locationName=${encodeURIComponent(searchParams.get('locationName') || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}`)
-  }
-
-  const validateVoucherCode = (code: string) => {
-    if (!code) return true
-    const upperCode = code.toUpperCase()
-    const discountData = VALID_DISCOUNT_CODES[upperCode]
-    
-    if (!discountData) return false
-    if (new Date(discountData.expiresAt) < new Date()) return false
-    
-    return true
   }
 
   return (
