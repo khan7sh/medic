@@ -98,10 +98,10 @@ export default function PaymentPage() {
       title: searchParams.get('title'),
       price: finalAmount,
       originalPrice: Number(servicePrice),
-      discountApplied: appliedDiscount > 0 ? {
+      discountApplied: appliedDiscount > 0 ? JSON.stringify({
         code: discountCode.toUpperCase(),
         amount: appliedDiscount
-      } : null,
+      }) : null,
       location: searchParams.get('location'),
       locationName: locationName,
       date: date,
@@ -133,7 +133,8 @@ export default function PaymentPage() {
           name: name,
           serviceTitle: decodeURIComponent(serviceTitle || ''),
           metadata: {
-            ...bookingData
+            ...bookingData,
+            discountApplied: bookingData.discountApplied
           }
         }),
       })
