@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
   if (!sig) {
     return NextResponse.json(
-      { error: 'No signature found' },
+      { error: 'Missing stripe-signature header' },
       { status: 400 }
     )
   }
@@ -24,48 +24,59 @@ export async function POST(req: Request) {
     const event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
 
     switch (event.type) {
-      case 'checkout.session.completed':
+      case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        
-        if (session.metadata) {
-          const { error } = await supabase
-            .from('bookings')
-            .insert([{
-              service_id: session.metadata.service,
-              service_title: session.metadata.title,
-              location: session.metadata.location,
-              date: session.metadata.date,
-              time: session.metadata.time,
-              price: session.metadata.price,
-              first_name: session.metadata.name.split(' ')[0],
-              last_name: session.metadata.name.split(' ')[1] || '',
-              email: session.metadata.email,
-              status: 'confirmed',
-              payment_method: 'online',
-              payment_status: 'paid',
-              payment_intent_id: session.payment_intent as string
-            }])
 
-          if (error) {
-            console.error('Error saving booking:', error)
-            return NextResponse.json(
-              { error: 'Failed to save booking' },
-              { status: 500 }
-            )
-          }
+        if (!session.metadata) {
+          throw new Error('No metadata found in session')
         }
-        break
 
-      case 'payment_intent.payment_failed':
-        // Handle failed payment if needed
+        const { error } = await supabase
+          .from('bookings')
+          .update({
+            status: 'confirmed',
+            payment_status: 'paid',
+            payment_intent_id: session.payment_intent as string,
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', session.customer_email)
+          .eq('service_title', session.metadata.title)
+          .eq('date', session.metadata.date)
+          .eq('time', session.metadata.time)
+
+        if (error) {
+          console.error('Error updating booking:', error)
+          throw error
+        }
+
         break
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        
+        const { error } = await supabase
+          .from('bookings')
+          .update({
+            payment_status: 'failed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('payment_intent_id', paymentIntent.id)
+
+        if (error) {
+          console.error('Error updating failed payment:', error)
+          throw error
+        }
+
+        break
+      }
     }
 
     return NextResponse.json({ received: true })
   } catch (err) {
     console.error('Webhook error:', err)
     return NextResponse.json(
-      { error: 'Webhook handler failed' },
+      { error: err instanceof Error ? err.message : 'Webhook handler failed' },
       { status: 400 }
     )
   }
