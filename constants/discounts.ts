@@ -1,7 +1,12 @@
-export const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: string }> = {
+export const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: string, hidden?: boolean }> = {
     '2025D': {
       amount: 5,
       expiresAt: '2025-12-31'
+    },
+    'SEBSI2308': {
+      amount: 54,
+      expiresAt: '2024-12-31',
+      hidden: true
     }
   }
 
