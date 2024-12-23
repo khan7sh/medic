@@ -11,17 +11,10 @@ import PaymentMethodSelector from '@/components/booking/PaymentMethodSelector'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { Input } from '@/components/ui/input'
+import { VALID_DISCOUNT_CODES } from '@/constants/discounts'
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-
-// Add at the top with other imports
-const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: string }> = {
-  '2025D': {
-    amount: 5,
-    expiresAt: '2025-12-31'
-  }
-}
 
 export default function PaymentPage() {
   const router = useRouter()

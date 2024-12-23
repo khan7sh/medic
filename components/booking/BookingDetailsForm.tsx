@@ -26,6 +26,7 @@ import * as z from 'zod'
 import Link from 'next/link'
 import { createBooking } from '@/services/bookingService'
 import { useToast } from '@/hooks/use-toast'
+import { VALID_DISCOUNT_CODES } from '@/constants/discounts'
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -37,7 +38,12 @@ const formSchema = z.object({
   license: z.string().optional(),
   vehicleType: z.string().optional(),
   employer: z.string().optional(),
-  voucherCode: z.string().optional(),
+  voucherCode: z.string()
+    .optional()
+    .refine(
+      validateVoucherCode,
+      'Invalid or expired voucher code'
+    ),
   hearAboutUs: z.string().min(1, 'Please tell us how you heard about us'),
   termsAccepted: z.boolean().refine(val => val === true, 'You must accept the terms'),
   marketingConsent: z.boolean().optional(),
@@ -115,6 +121,17 @@ export default function BookingDetailsForm() {
 
   const handleBack = () => {
     router.push(`/booking/datetime?service=${serviceId}&title=${encodeURIComponent(serviceTitle || '')}&price=${servicePrice}&location=${location}&locationName=${encodeURIComponent(searchParams.get('locationName') || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}`)
+  }
+
+  const validateVoucherCode = (code: string) => {
+    if (!code) return true
+    const upperCode = code.toUpperCase()
+    const discountData = VALID_DISCOUNT_CODES[upperCode]
+    
+    if (!discountData) return false
+    if (new Date(discountData.expiresAt) < new Date()) return false
+    
+    return true
   }
 
   return (
@@ -256,9 +273,21 @@ export default function BookingDetailsForm() {
               <FormItem>
                 <FormLabel>Voucher Code</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter voucher code" {...field} />
+                  <Input 
+                    placeholder="Enter voucher code (if any)"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase()
+                      field.onChange(value)
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
+                {field.value && VALID_DISCOUNT_CODES[field.value] && (
+                  <p className="text-sm text-primary">
+                    £{VALID_DISCOUNT_CODES[field.value].amount} discount will be applied at checkout
+                  </p>
+                )}
               </FormItem>
             )}
           />
