@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useToast } from '@/hooks/use-toast'
 import { Input } from '@/components/ui/input'
 import { VALID_DISCOUNT_CODES, validateVoucherCode } from '@/constants/discounts'
+import { sendConfirmationEmail } from '@/services/bookingService'
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -157,6 +158,12 @@ export default function PaymentPage() {
       if (error) {
         throw error
       }
+
+      // After successful booking creation and payment
+      await sendConfirmationEmail(bookingData)
+      
+      // Continue with the redirect
+      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${finalAmount}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=online`)
     } catch (error) {
       console.error('Payment error:', error)
       toast({

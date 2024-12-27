@@ -1,4 +1,8 @@
 import { supabase } from '@/lib/supabase'
+import { Resend } from 'resend'
+import BookingConfirmationEmail from '@/components/emails/BookingConfirmation'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export interface BookingData {
   service_id: string
@@ -56,7 +60,24 @@ export async function createBooking(bookingData: BookingData) {
   }
 }
 
-async function sendConfirmationEmail(booking: BookingData) {
-  // Implement email sending logic here
-  // You can use services like SendGrid, AWS SES, or Resend
+export async function sendConfirmationEmail(booking: BookingData) {
+  try {
+    await resend.emails.send({
+      from: 'Medical Assessments <bookings@yourdomain.com>',
+      to: booking.email,
+      subject: 'Your Medical Assessment Booking Confirmation',
+      react: BookingConfirmationEmail({
+        customerName: `${booking.first_name} ${booking.last_name}`,
+        serviceName: booking.service_title,
+        location: booking.location,
+        date: booking.date,
+        time: booking.time,
+        price: booking.price.toString(),
+        paymentMethod: booking.payment_method === 'online' ? 'Online Payment' : 'Pay at Clinic',
+        paymentStatus: booking.payment_status === 'paid' ? 'Paid' : 'Pending'
+      })
+    })
+  } catch (error) {
+    console.error('Failed to send confirmation email:', error)
+  }
 } 
