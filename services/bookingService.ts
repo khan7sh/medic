@@ -1,8 +1,6 @@
 import { supabase } from '@/lib/supabase'
-import { Resend } from 'resend'
-import BookingConfirmationEmail from '@/components/emails/BookingConfirmation'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
+import { resend } from '@/lib/resend'
+import { BookingConfirmationEmail } from '@/components/emails/BookingConfirmation'
 
 export interface BookingData {
   service_id: string
@@ -61,9 +59,14 @@ export async function createBooking(bookingData: BookingData) {
 }
 
 export async function sendConfirmationEmail(booking: BookingData) {
+  if (!process.env.RESEND_API_KEY) {
+    console.error('Missing RESEND_API_KEY environment variable')
+    return
+  }
+
   try {
-    await resend.emails.send({
-      from: 'Medical Assessments <bookings@yourdomain.com>',
+    const { data, error } = await resend.emails.send({
+      from: 'Medical Assessments <bookings@medicald4.com>',
       to: booking.email,
       subject: 'Your Medical Assessment Booking Confirmation',
       react: BookingConfirmationEmail({
@@ -77,6 +80,13 @@ export async function sendConfirmationEmail(booking: BookingData) {
         paymentStatus: booking.payment_status === 'paid' ? 'Paid' : 'Pending'
       })
     })
+
+    if (error) {
+      console.error('Failed to send email:', error)
+      return
+    }
+
+    return data
   } catch (error) {
     console.error('Failed to send confirmation email:', error)
   }
