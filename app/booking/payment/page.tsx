@@ -96,7 +96,7 @@ export default function PaymentPage() {
     
     const bookingData = {
       service: searchParams.get('service'),
-      title: searchParams.get('title'),
+      title: decodeURIComponent(serviceTitle || ''),
       price: finalAmount,
       originalPrice: Number(servicePrice),
       discountApplied: appliedDiscount > 0 ? JSON.stringify({
@@ -104,12 +104,13 @@ export default function PaymentPage() {
         amount: appliedDiscount
       }) : null,
       location: searchParams.get('location'),
-      locationName: locationName,
+      locationName: decodeURIComponent(locationName || ''),
       date: date,
       time: time,
       name: name,
       email: email,
-      paymentMethod: paymentMethod
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentMethod === 'online' ? 'paid' : 'pending'
     }
     
     localStorage.setItem('pendingBooking', JSON.stringify(bookingData))

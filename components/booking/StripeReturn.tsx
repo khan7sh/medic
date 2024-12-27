@@ -23,7 +23,8 @@ export default function StripeReturn() {
           time: bookingData.time || '',
           name: bookingData.name || '',
           email: bookingData.email || '',
-          paymentMethod: 'online'
+          paymentMethod: 'online',
+          paymentStatus: 'paid'
         })
         
         // Clear storage before navigation

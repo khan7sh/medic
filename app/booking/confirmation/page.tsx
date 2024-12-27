@@ -10,14 +10,14 @@ export default function ConfirmationPage() {
   const searchParams = useSearchParams()
   
   const bookingDetails = {
-    service: decodeURIComponent(searchParams.get('title') || ''),
-    location: decodeURIComponent(searchParams.get('locationName') || ''),
-    date: searchParams.get('date'),
-    time: searchParams.get('time'),
-    name: searchParams.get('name'),
-    email: searchParams.get('email'),
+    service: searchParams.get('title') ? decodeURIComponent(searchParams.get('title')!) : '',
+    location: searchParams.get('locationName') ? decodeURIComponent(searchParams.get('locationName')!) : '',
+    date: searchParams.get('date') || '',
+    time: searchParams.get('time') || '',
+    name: searchParams.get('name') || '',
+    email: searchParams.get('email') || '',
     paymentMethod: searchParams.get('paymentMethod') === 'online' ? 'Online Payment' : 'Pay at Clinic',
-    paymentStatus: searchParams.get('paymentMethod') === 'online' ? 'Paid' : 'Pending'
+    paymentStatus: searchParams.get('paymentStatus') === 'paid' ? 'Paid' : 'Pending'
   }
 
   return (
