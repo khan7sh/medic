@@ -59,35 +59,23 @@ export async function createBooking(bookingData: BookingData) {
 }
 
 export async function sendConfirmationEmail(booking: BookingData) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error('Missing RESEND_API_KEY environment variable')
-    return
-  }
-
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'Medical Assessments <bookings@medicald4.com>',
-      to: booking.email,
-      subject: 'Your Medical Assessment Booking Confirmation',
-      react: BookingConfirmationEmail({
-        customerName: `${booking.first_name} ${booking.last_name}`,
-        serviceName: booking.service_title,
-        location: booking.location,
-        date: booking.date,
-        time: booking.time,
-        price: booking.price.toString(),
-        paymentMethod: booking.payment_method === 'online' ? 'Online Payment' : 'Pay at Clinic',
-        paymentStatus: booking.payment_status === 'paid' ? 'Paid' : 'Pending'
-      })
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(booking),
     })
 
-    if (error) {
-      console.error('Failed to send email:', error)
-      return
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to send email')
     }
 
-    return data
+    return await response.json()
   } catch (error) {
     console.error('Failed to send confirmation email:', error)
+    throw error
   }
 } 
