@@ -30,6 +30,8 @@ export async function POST(req: Request) {
         throw new Error('No metadata found in session')
       }
 
+      console.log('Webhook metadata:', metadata)
+
       // Update booking status in database
       const { data: booking, error: updateError } = await supabase
         .from('bookings')
@@ -48,25 +50,30 @@ export async function POST(req: Request) {
         .single()
 
       if (updateError) {
+        console.error('Update error:', updateError)
         throw updateError
       }
 
       // Send confirmation email
-      await resend.emails.send({
-        from: 'Medical Assessments <bookings@medicald4.com>',
-        to: session.customer_email!,
-        subject: 'Your Medical Assessment Booking Confirmation',
-        react: BookingConfirmationEmail({
-          customerName: metadata.name,
-          serviceName: metadata.title,
-          location: metadata.locationName,
-          date: metadata.date,
-          time: metadata.time,
-          price: (session.amount_total! / 100).toString(),
-          paymentMethod: 'Online Payment',
-          paymentStatus: 'Paid'
+      try {
+        await resend.emails.send({
+          from: 'Medical Assessments <bookings@medicald4.com>',
+          to: session.customer_email!,
+          subject: 'Your Medical Assessment Booking Confirmation',
+          react: BookingConfirmationEmail({
+            customerName: metadata.name,
+            serviceName: metadata.title,
+            location: metadata.locationName,
+            date: metadata.date,
+            time: metadata.time,
+            price: (session.amount_total! / 100).toString(),
+            paymentMethod: 'Online Payment',
+            paymentStatus: 'Paid'
+          })
         })
-      })
+      } catch (emailError) {
+        console.error('Email sending error:', emailError)
+      }
     }
 
     return NextResponse.json({ received: true })

@@ -14,9 +14,11 @@ export default function StripeReturn() {
     if (pendingBooking) {
       try {
         const bookingData = JSON.parse(pendingBooking)
+        console.log('Retrieved booking data:', bookingData)
+        
         const params = new URLSearchParams({
-          title: encodeURIComponent(bookingData.title),
-          locationName: encodeURIComponent(bookingData.locationName),
+          title: encodeURIComponent(bookingData.service_title || bookingData.title),
+          locationName: encodeURIComponent(bookingData.location || bookingData.locationName),
           date: bookingData.date,
           time: bookingData.time,
           name: bookingData.name,

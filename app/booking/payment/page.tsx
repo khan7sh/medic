@@ -100,14 +100,13 @@ export default function PaymentPage() {
       // Store booking data in localStorage before payment
       const bookingData = {
         service: searchParams.get('service'),
-        title: decodeURIComponent(serviceTitle || ''),
-        price: finalAmount,
-        location: searchParams.get('location'),
-        locationName: decodeURIComponent(locationName || ''),
+        service_title: decodeURIComponent(serviceTitle || ''),
+        location: decodeURIComponent(locationName || ''),
         date: searchParams.get('date'),
         time: searchParams.get('time'),
         name: name,
         email: email,
+        price: finalAmount,
         paymentMethod: 'online',
         paymentStatus: 'pending'
       }
