@@ -26,12 +26,14 @@ export async function POST(request: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/payment`,
       customer_email: email,
       metadata: {
-        first_name: metadata.first_name,
-        last_name: metadata.last_name,
-        serviceTitle: metadata.service_title,
+        name,
+        serviceTitle,
         locationName: metadata.location,
         date: metadata.date,
-        time: metadata.time
+        time: metadata.time,
+        email,
+        payment_method: 'online',
+        payment_status: 'paid'
       }
     })
 

@@ -10,6 +10,7 @@ export default function StripeReturn() {
 
   useEffect(() => {
     const pendingBooking = localStorage.getItem('pendingBooking')
+    
     if (pendingBooking) {
       try {
         const bookingData = JSON.parse(pendingBooking)
@@ -26,18 +27,16 @@ export default function StripeReturn() {
           paymentMethod: 'online',
           paymentStatus: 'paid'
         })
-        
-        // Clear storage before navigation
+
         localStorage.removeItem('pendingBooking')
         router.push(`/booking/confirmation?${params.toString()}`)
       } catch (error) {
         console.error('Error processing booking:', error)
         toast({
-          title: "Error",
-          description: "Failed to process payment confirmation",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to process booking confirmation',
+          variant: 'destructive',
         })
-        router.push('/booking/services')
       }
     } else {
       router.push('/booking/services')
