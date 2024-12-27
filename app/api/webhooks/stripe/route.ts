@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         first_name: metadata?.name?.split(' ')[0] || '',
         last_name: metadata?.name?.split(' ')[1] || '',
         email: session.customer_email!,
-        service_title: metadata?.serviceTitle || '',
+        service_title: metadata?.title || '',
         location: metadata?.locationName || '',
         date: metadata?.date || '',
         time: metadata?.time || '',
@@ -41,19 +41,22 @@ export async function POST(req: Request) {
         status: 'confirmed'
       }
 
-      // Save to database first
-      const { data: booking, error } = await supabase
+      // Save to database
+      const { error: bookingError } = await supabase
         .from('bookings')
         .insert([bookingData])
-        .select()
-        .single()
 
-      if (error) {
-        throw new Error(`Failed to save booking: ${error.message}`)
+      if (bookingError) {
+        throw new Error(`Failed to save booking: ${bookingError.message}`)
       }
 
-      // Then send confirmation email
-      await sendConfirmationEmail(bookingData)
+      // Send confirmation email
+      await sendConfirmationEmail({
+        ...bookingData,
+        customerName: `${bookingData.first_name} ${bookingData.last_name}`,
+        serviceName: bookingData.service_title
+      })
+
     } catch (error) {
       console.error('Error processing webhook:', error)
     }

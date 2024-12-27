@@ -94,36 +94,26 @@ export default function PaymentPage() {
   const handlePayment = async () => {
     const finalAmount = Number(servicePrice) - appliedDiscount
     
-    const bookingData = {
-      service: searchParams.get('service'),
-      title: decodeURIComponent(serviceTitle || ''),
-      price: finalAmount,
-      originalPrice: Number(servicePrice),
-      discountApplied: appliedDiscount > 0 ? JSON.stringify({
-        code: discountCode.toUpperCase(),
-        amount: appliedDiscount
-      }) : null,
-      location: searchParams.get('location'),
-      locationName: decodeURIComponent(locationName || ''),
-      date: date,
-      time: time,
-      name: name,
-      email: email,
-      paymentMethod: paymentMethod,
-      paymentStatus: paymentMethod === 'online' ? 'paid' : 'pending'
-    }
-    
-    localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
-
-    if (paymentMethod === 'inPerson') {
-      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${finalAmount}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=inPerson`)
-      return
-    }
-
     try {
       setIsLoading(true)
-      console.log('Starting payment process...')
       
+      // Store booking data in localStorage before payment
+      const bookingData = {
+        service: searchParams.get('service'),
+        title: decodeURIComponent(serviceTitle || ''),
+        price: finalAmount,
+        location: searchParams.get('location'),
+        locationName: decodeURIComponent(locationName || ''),
+        date: searchParams.get('date'),
+        time: searchParams.get('time'),
+        name: name,
+        email: email,
+        paymentMethod: 'online',
+        paymentStatus: 'pending'
+      }
+      
+      localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
+
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
@@ -134,14 +124,7 @@ export default function PaymentPage() {
           email: email,
           name: name,
           serviceTitle: decodeURIComponent(serviceTitle || ''),
-          metadata: {
-            name: name,
-            serviceTitle: decodeURIComponent(serviceTitle || ''),
-            locationName: decodeURIComponent(locationName || ''),
-            date: date,
-            time: time,
-            email: email
-          }
+          metadata: bookingData
         }),
       })
 

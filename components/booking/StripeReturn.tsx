@@ -29,7 +29,7 @@ export default function StripeReturn() {
         })
 
         localStorage.removeItem('pendingBooking')
-        router.push(`/booking/confirmation?${params.toString()}`)
+        router.replace(`/booking/confirmation?${params.toString()}`)
       } catch (error) {
         console.error('Error processing booking:', error)
         toast({
