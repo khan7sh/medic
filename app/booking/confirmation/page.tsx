@@ -16,8 +16,8 @@ export default function ConfirmationPage() {
     time: searchParams.get('time') || '',
     name: searchParams.get('name') || '',
     email: searchParams.get('email') || '',
-    paymentMethod: searchParams.get('paymentMethod') || 'Online Payment',
-    paymentStatus: searchParams.get('paymentStatus') || 'Paid',
+    paymentMethod: 'Online Payment',
+    paymentStatus: 'Paid',
     price: searchParams.get('price') || ''
   }
 
@@ -35,14 +35,17 @@ export default function ConfirmationPage() {
         <div className="max-w-md mx-auto bg-secondary/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
           <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
           <div className="space-y-3 text-left text-sm sm:text-base">
-            <p><span className="font-medium">Service:</span> {decodeURIComponent(bookingDetails.service || '')}</p>
-            <p><span className="font-medium">Location:</span> {decodeURIComponent(bookingDetails.location || '')}</p>
+            <p><span className="font-medium">Service:</span> {bookingDetails.service}</p>
+            <p><span className="font-medium">Location:</span> {bookingDetails.location}</p>
             <p><span className="font-medium">Date:</span> {bookingDetails.date}</p>
             <p><span className="font-medium">Time:</span> {bookingDetails.time}</p>
             <p><span className="font-medium">Name:</span> {bookingDetails.name}</p>
             <p><span className="font-medium">Email:</span> {bookingDetails.email}</p>
             <p><span className="font-medium">Payment Method:</span> {bookingDetails.paymentMethod}</p>
             <p><span className="font-medium">Payment Status:</span> {bookingDetails.paymentStatus}</p>
+            {bookingDetails.price && (
+              <p><span className="font-medium">Price:</span> £{bookingDetails.price}</p>
+            )}
           </div>
         </div>
 

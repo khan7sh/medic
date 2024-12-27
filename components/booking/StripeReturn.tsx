@@ -17,8 +17,8 @@ export default function StripeReturn() {
         console.log('Retrieved booking data:', bookingData)
         
         const params = new URLSearchParams({
-          title: encodeURIComponent(bookingData.service_title || bookingData.title),
-          locationName: encodeURIComponent(bookingData.location || bookingData.locationName),
+          title: encodeURIComponent(bookingData.service_title),
+          locationName: encodeURIComponent(bookingData.locationName),
           date: bookingData.date,
           time: bookingData.time,
           name: bookingData.name,
