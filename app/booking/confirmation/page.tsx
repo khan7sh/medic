@@ -10,14 +10,14 @@ export default function ConfirmationPage() {
   const searchParams = useSearchParams()
   
   const bookingDetails = {
-    service: searchParams.get('title'),
-    location: searchParams.get('locationName'),
+    service: decodeURIComponent(searchParams.get('title') || ''),
+    location: decodeURIComponent(searchParams.get('locationName') || ''),
     date: searchParams.get('date'),
     time: searchParams.get('time'),
     name: searchParams.get('name'),
     email: searchParams.get('email'),
-    paymentMethod: searchParams.get('paymentMethod'),
-    paymentStatus: searchParams.get('paymentMethod') === 'inPerson' ? 'pending' : 'paid'
+    paymentMethod: searchParams.get('paymentMethod') === 'online' ? 'Online Payment' : 'Pay at Clinic',
+    paymentStatus: searchParams.get('paymentMethod') === 'online' ? 'Paid' : 'Pending'
   }
 
   return (
@@ -40,7 +40,7 @@ export default function ConfirmationPage() {
             <p><span className="font-medium">Time:</span> {bookingDetails.time}</p>
             <p><span className="font-medium">Name:</span> {bookingDetails.name}</p>
             <p><span className="font-medium">Email:</span> {bookingDetails.email}</p>
-            <p><span className="font-medium">Payment Method:</span> {bookingDetails.paymentMethod === 'online' ? 'Online Payment' : 'Pay at Clinic'}</p>
+            <p><span className="font-medium">Payment Method:</span> {bookingDetails.paymentMethod}</p>
             <p><span className="font-medium">Payment Status:</span> {bookingDetails.paymentStatus}</p>
           </div>
         </div>

@@ -23,17 +23,18 @@ export async function POST(req: Request) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
+    const metadata = session.metadata
     
     try {
       const bookingData = {
-        first_name: session.metadata?.first_name,
-        last_name: session.metadata?.last_name,
+        first_name: metadata?.name?.split(' ')[0] || '',
+        last_name: metadata?.name?.split(' ')[1] || '',
         email: session.customer_email!,
-        service_title: session.metadata?.serviceTitle,
-        location: session.metadata?.locationName,
-        date: session.metadata?.date,
-        time: session.metadata?.time,
-        price: session.amount_total! / 100,
+        service_title: metadata?.serviceTitle,
+        location: metadata?.locationName,
+        date: metadata?.date,
+        time: metadata?.time,
+        price: (session.amount_total! / 100).toString(),
         payment_method: 'online',
         payment_status: 'paid'
       }

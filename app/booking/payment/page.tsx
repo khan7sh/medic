@@ -134,8 +134,12 @@ export default function PaymentPage() {
           name: name,
           serviceTitle: decodeURIComponent(serviceTitle || ''),
           metadata: {
-            ...bookingData,
-            discountApplied: bookingData.discountApplied
+            name: name,
+            serviceTitle: decodeURIComponent(serviceTitle || ''),
+            locationName: decodeURIComponent(locationName || ''),
+            date: date,
+            time: time,
+            email: email
           }
         }),
       })
