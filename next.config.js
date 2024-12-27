@@ -16,12 +16,10 @@ const nextConfig = {
   experimental: {
     serverActions: true
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false
-      }
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': '.'
     }
     return config
   }
