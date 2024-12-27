@@ -160,12 +160,7 @@ export default function PaymentPage() {
       }
 
       // After successful booking creation and payment
-      try {
-        await sendConfirmationEmail(bookingData)
-      } catch (error) {
-        console.error('Failed to send confirmation email:', error)
-        // Continue with redirect even if email fails
-      }
+      // Email will be sent via webhook after payment confirmation
       
       // Continue with the redirect
       router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${finalAmount}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=online`)
