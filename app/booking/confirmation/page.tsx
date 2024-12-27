@@ -16,8 +16,9 @@ export default function ConfirmationPage() {
     time: searchParams.get('time') || '',
     name: searchParams.get('name') || '',
     email: searchParams.get('email') || '',
-    paymentMethod: searchParams.get('paymentMethod') === 'online' ? 'Online Payment' : 'Pay at Clinic',
-    paymentStatus: searchParams.get('paymentStatus') === 'paid' ? 'Paid' : 'Pending'
+    paymentMethod: searchParams.get('paymentMethod') || 'Online Payment',
+    paymentStatus: searchParams.get('paymentStatus') || 'Paid',
+    price: searchParams.get('price') || ''
   }
 
   return (

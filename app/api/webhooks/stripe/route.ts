@@ -1,7 +1,6 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { sendConfirmationEmail } from '@/services/bookingService'
 import { supabase } from '@/lib/supabase'
 import { resend } from '@/lib/resend'
 import { BookingConfirmationEmail } from '@/components/emails/BookingConfirmation'
@@ -16,67 +15,66 @@ export async function POST(req: Request) {
   const body = await req.text()
   const sig = headers().get('stripe-signature')
 
-  let event: Stripe.Event
-
-  try {
-    event = stripe.webhooks.constructEvent(body, sig!, endpointSecret)
-  } catch (err) {
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const metadata = session.metadata
-    
-    try {
-      const bookingData = {
-        first_name: metadata?.name?.split(' ')[0] || '',
-        last_name: metadata?.name?.split(' ')[1] || '',
-        email: session.customer_email!,
-        service_title: metadata?.title || '',
-        location: metadata?.locationName || '',
-        date: metadata?.date || '',
-        time: metadata?.time || '',
-        price: (session.amount_total! / 100).toString(),
-        payment_method: 'online',
-        payment_status: 'paid',
-        status: 'confirmed'
+  try {
+    const event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session
+      const metadata = session.metadata
+
+      if (!metadata) {
+        throw new Error('No metadata found in session')
       }
 
-      // Save to database
-      const { error: bookingError } = await supabase
+      // Update booking status in database
+      const { data: booking, error: updateError } = await supabase
         .from('bookings')
-        .insert([bookingData])
+        .update({
+          status: 'confirmed',
+          payment_status: 'paid',
+          payment_method: 'online',
+          payment_intent_id: session.payment_intent as string,
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', session.customer_email)
+        .eq('service_title', metadata.title)
+        .eq('date', metadata.date)
+        .eq('time', metadata.time)
+        .select()
+        .single()
 
-      if (bookingError) {
-        throw new Error(`Failed to save booking: ${bookingError.message}`)
+      if (updateError) {
+        throw updateError
       }
 
-      // Send confirmation email using Resend
-      const { error: emailError } = await resend.emails.send({
+      // Send confirmation email
+      await resend.emails.send({
         from: 'Medical Assessments <bookings@medicald4.com>',
-        to: bookingData.email,
+        to: session.customer_email!,
         subject: 'Your Medical Assessment Booking Confirmation',
         react: BookingConfirmationEmail({
-          customerName: `${bookingData.first_name} ${bookingData.last_name}`,
-          serviceName: bookingData.service_title,
-          location: bookingData.location,
-          date: bookingData.date,
-          time: bookingData.time,
-          price: bookingData.price,
+          customerName: metadata.name,
+          serviceName: metadata.title,
+          location: metadata.locationName,
+          date: metadata.date,
+          time: metadata.time,
+          price: (session.amount_total! / 100).toString(),
           paymentMethod: 'Online Payment',
           paymentStatus: 'Paid'
         })
       })
-
-      if (emailError) {
-        console.error('Failed to send email:', emailError)
-      }
-
-    } catch (error) {
-      console.error('Error processing webhook:', error)
     }
-  }
 
-  return NextResponse.json({ received: true })
+    return NextResponse.json({ received: true })
+  } catch (error) {
+    console.error('Webhook error:', error)
+    return NextResponse.json(
+      { error: 'Webhook handler failed' },
+      { status: 500 }
+    )
+  }
 } 

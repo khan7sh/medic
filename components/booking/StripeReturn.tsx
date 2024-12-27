@@ -15,18 +15,19 @@ export default function StripeReturn() {
       try {
         const bookingData = JSON.parse(pendingBooking)
         const params = new URLSearchParams({
-          title: encodeURIComponent(bookingData.title || ''),
-          locationName: encodeURIComponent(bookingData.locationName || ''),
-          date: bookingData.date || '',
-          time: bookingData.time || '',
-          name: bookingData.name || '',
-          email: bookingData.email || '',
+          title: encodeURIComponent(bookingData.title),
+          locationName: encodeURIComponent(bookingData.locationName),
+          date: bookingData.date,
+          time: bookingData.time,
+          name: bookingData.name,
+          email: bookingData.email,
           paymentMethod: 'online',
-          paymentStatus: 'paid'
-        })
+          paymentStatus: 'paid',
+          price: bookingData.price.toString()
+        }).toString()
 
         localStorage.removeItem('pendingBooking')
-        router.replace(`/booking/confirmation?${params.toString()}`)
+        router.replace(`/booking/confirmation?${params}`)
       } catch (error) {
         console.error('Error processing booking:', error)
         toast({
