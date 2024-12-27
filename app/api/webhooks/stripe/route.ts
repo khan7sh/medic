@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { sendConfirmationEmail } from '@/services/bookingService'
 import { supabase } from '@/lib/supabase'
+import { resend } from '@/lib/resend'
+import { BookingConfirmationEmail } from '@/components/emails/BookingConfirmation'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16'
@@ -50,12 +52,26 @@ export async function POST(req: Request) {
         throw new Error(`Failed to save booking: ${bookingError.message}`)
       }
 
-      // Send confirmation email
-      await sendConfirmationEmail({
-        ...bookingData,
-        customerName: `${bookingData.first_name} ${bookingData.last_name}`,
-        serviceName: bookingData.service_title
+      // Send confirmation email using Resend
+      const { error: emailError } = await resend.emails.send({
+        from: 'Medical Assessments <bookings@medicald4.com>',
+        to: bookingData.email,
+        subject: 'Your Medical Assessment Booking Confirmation',
+        react: BookingConfirmationEmail({
+          customerName: `${bookingData.first_name} ${bookingData.last_name}`,
+          serviceName: bookingData.service_title,
+          location: bookingData.location,
+          date: bookingData.date,
+          time: bookingData.time,
+          price: bookingData.price,
+          paymentMethod: 'Online Payment',
+          paymentStatus: 'Paid'
+        })
       })
+
+      if (emailError) {
+        console.error('Failed to send email:', emailError)
+      }
 
     } catch (error) {
       console.error('Error processing webhook:', error)

@@ -15,10 +15,7 @@ export default function StripeReturn() {
       try {
         const bookingData = JSON.parse(pendingBooking)
         const params = new URLSearchParams({
-          service: bookingData.service || '',
           title: encodeURIComponent(bookingData.title || ''),
-          price: bookingData.price?.toString() || '',
-          location: bookingData.location || '',
           locationName: encodeURIComponent(bookingData.locationName || ''),
           date: bookingData.date || '',
           time: bookingData.time || '',
