@@ -21,11 +21,15 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Line,
+  Legend
 } from 'recharts'
-import { Download, TrendingUp, Users, PoundSterling, Calendar } from 'lucide-react'
+import { Download, TrendingUp, Users, PoundSterling, Calendar, FileDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { format } from 'date-fns'
+import { format, subDays, startOfDay, endOfDay } from 'date-fns'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 
 interface BookingStats {
   total: number
@@ -33,6 +37,7 @@ interface BookingStats {
   cancelled: number
   pending: number
   revenue: number
+  [key: string]: number
 }
 
 interface ServiceStats {
@@ -44,12 +49,42 @@ interface ServiceStats {
 interface LocationStats {
   name: string
   bookings: number
+  revenue: number
+}
+
+interface Booking {
+  id: string
+  service_title: string
+  location: string
+  date: string
+  time: string
+  status: 'pending' | 'completed' | 'cancelled'
+  payment_status: 'pending' | 'paid' | 'failed'
+  price: number
+  created_at: string | null
+  date_of_birth: string
+  email: string
+  employer: string | null
+  first_name: string
+  hear_about_us: string
+  last_name: string
+  license: string | null
+  payment_intent_id: string | null
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
+interface DateRange {
+  from: Date
+  to: Date
+}
+
 export default function ReportsPage() {
   const [timeframe, setTimeframe] = useState('7days')
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: subDays(new Date(), 7),
+    to: new Date()
+  })
   const [stats, setStats] = useState<BookingStats>({
     total: 0,
     completed: 0,
@@ -60,98 +95,142 @@ export default function ReportsPage() {
   const [serviceStats, setServiceStats] = useState<ServiceStats[]>([])
   const [locationStats, setLocationStats] = useState<LocationStats[]>([])
   const [dailyBookings, setDailyBookings] = useState<any[]>([])
+  const [revenueData, setRevenueData] = useState<any[]>([])
+  const [peakTimes, setPeakTimes] = useState<any[]>([])
 
   useEffect(() => {
     fetchStats()
-  }, [fetchStats])
+  }, [dateRange])
 
   async function fetchStats() {
-    // Calculate date range based on timeframe
-    const today = new Date()
-    let startDate = new Date()
-    switch (timeframe) {
-      case '7days':
-        startDate.setDate(today.getDate() - 7)
-        break
-      case '30days':
-        startDate.setDate(today.getDate() - 30)
-        break
-      case '90days':
-        startDate.setDate(today.getDate() - 90)
-        break
-    }
+    try {
+      const { data: bookings, error } = await supabase
+        .from('bookings')
+        .select('*')
+        .gte('created_at', startOfDay(dateRange.from).toISOString())
+        .lte('created_at', endOfDay(dateRange.to).toISOString())
 
-    const { data: bookings } = await supabase
-      .from('bookings')
-      .select('*')
-      .gte('date', startDate.toISOString().split('T')[0])
-      .lte('date', today.toISOString().split('T')[0])
-    
-    if (bookings) {
-      const stats = bookings.reduce((acc, booking) => ({
-        total: acc.total + 1,
-        completed: acc.completed + (booking.status === 'completed' ? 1 : 0),
-        cancelled: acc.cancelled + (booking.status === 'cancelled' ? 1 : 0),
-        pending: acc.pending + (booking.status === 'pending' ? 1 : 0),
-        revenue: acc.revenue + (booking.status === 'completed' ? 50 : 0), // Assuming £50 per booking
-      }), { total: 0, completed: 0, cancelled: 0, pending: 0, revenue: 0 })
+      if (error) throw error
+      if (!bookings) return
 
-      setStats(stats)
+      // Process basic stats
+      const statsData = bookings.reduce((acc: BookingStats, booking) => {
+        acc.total++
+        if (booking.status && booking.status in acc) {
+          acc[booking.status]++
+        }
+        if (booking.payment_status === 'paid' && booking.price) {
+          acc.revenue += booking.price
+        }
+        return acc
+      }, {
+        total: 0,
+        completed: 0,
+        cancelled: 0,
+        pending: 0,
+        revenue: 0
+      })
+
+      setStats(statsData)
 
       // Process service stats
-      const serviceData = bookings.reduce((acc: any, booking) => {
-        if (!acc[booking.service_title]) {
-          acc[booking.service_title] = { bookings: 0, revenue: 0 }
+      const serviceData = bookings.reduce((acc: Record<string, ServiceStats>, booking) => {
+        const title = booking.service_title || 'Unknown'
+        if (!acc[title]) {
+          acc[title] = { name: title, bookings: 0, revenue: 0 }
         }
-        acc[booking.service_title].bookings++
-        acc[booking.service_title].revenue += booking.status === 'completed' ? 50 : 0
+        acc[title].bookings++
+        if (booking.payment_status === 'paid' && booking.price) {
+          acc[title].revenue += booking.price
+        }
         return acc
       }, {})
 
-      setServiceStats(Object.entries(serviceData).map(([name, data]: [string, any]) => ({
-        name,
-        ...data
-      })))
+      setServiceStats(Object.values(serviceData))
 
       // Process location stats
-      const locationData = bookings.reduce((acc: any, booking) => {
-        if (!acc[booking.location]) {
-          acc[booking.location] = { bookings: 0 }
+      const locationData = bookings.reduce((acc: Record<string, LocationStats>, booking) => {
+        const location = booking.location || 'Unknown'
+        if (!acc[location]) {
+          acc[location] = { name: location, bookings: 0, revenue: 0 }
         }
-        acc[booking.location].bookings++
+        acc[location].bookings++
+        if (booking.payment_status === 'paid' && booking.price) {
+          acc[location].revenue += booking.price
+        }
         return acc
       }, {})
 
-      setLocationStats(Object.entries(locationData).map(([name, data]: [string, any]) => ({
-        name,
-        ...data
-      })))
+      setLocationStats(Object.values(locationData))
 
-      // Process daily bookings
-      const dailyData = bookings.reduce((acc: any, booking) => {
-        const date = booking.date
+      // Process daily bookings and revenue
+      const dailyData = bookings.reduce((acc: Record<string, { bookings: number, revenue: number }>, booking) => {
+        if (!booking.created_at) return acc
+        const date = format(new Date(booking.created_at), 'yyyy-MM-dd')
         if (!acc[date]) {
-          acc[date] = 0
+          acc[date] = { bookings: 0, revenue: 0 }
         }
-        acc[date]++
+        acc[date].bookings++
+        if (booking.payment_status === 'paid' && booking.price) {
+          acc[date].revenue += booking.price
+        }
         return acc
       }, {})
 
-      setDailyBookings(Object.entries(dailyData).map(([date, count]) => ({
+      const dailyStats = Object.entries(dailyData).map(([date, data]) => ({
         date: format(new Date(date), 'MMM dd'),
-        bookings: count
-      })))
+        ...data
+      }))
+
+      setDailyBookings(dailyStats)
+      setRevenueData(dailyStats)
+
+      // Process peak booking times
+      const timeData = bookings.reduce((acc: Record<number, number>, booking) => {
+        if (!booking.created_at) return acc
+        const hour = new Date(booking.created_at).getHours()
+        if (!acc[hour]) {
+          acc[hour] = 0
+        }
+        acc[hour]++
+        return acc
+      }, {})
+
+      setPeakTimes(
+        Object.entries(timeData).map(([hour, count]) => ({
+          hour: `${parseInt(hour)}:00`,
+          bookings: count
+        }))
+      )
+    } catch (error) {
+      console.error('Error fetching stats:', error)
     }
   }
 
   async function exportReport() {
     const csvData = [
-      ['Date', 'Service', 'Location', 'Status', 'Revenue'],
+      ['Date Range', `${format(dateRange.from, 'yyyy-MM-dd')} to ${format(dateRange.to, 'yyyy-MM-dd')}`],
+      [''],
+      ['Overall Stats'],
+      ['Total Bookings', stats.total],
+      ['Completed Bookings', stats.completed],
+      ['Cancelled Bookings', stats.cancelled],
+      ['Pending Bookings', stats.pending],
+      ['Total Revenue', `£${stats.revenue}`],
+      [''],
+      ['Service Performance'],
+      ['Service', 'Bookings', 'Revenue'],
       ...serviceStats.map(stat => [
-        format(new Date(), 'yyyy-MM-dd'),
         stat.name,
-        '',
-        '',
+        stat.bookings,
+        `£${stat.revenue}`
+      ]),
+      [''],
+      ['Location Performance'],
+      ['Location', 'Bookings', 'Revenue'],
+      ...locationStats.map(stat => [
+        stat.name,
+        stat.bookings,
         `£${stat.revenue}`
       ])
     ]
@@ -168,6 +247,20 @@ export default function ReportsPage() {
   return (
     <AdminLayout>
       <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+            />
+            <Button onClick={exportReport}>
+              <FileDown className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -209,27 +302,62 @@ export default function ReportsPage() {
           </Card>
         </div>
 
-        {/* Charts */}
+        {/* Enhanced Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <Card className="w-full">
             <CardHeader>
-              <CardTitle>Daily Bookings</CardTitle>
+              <CardTitle>Bookings & Revenue Trend</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={dailyBookings}>
+                  <LineChart data={revenueData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="bookings"
+                      stroke="#0088FE"
+                      name="Bookings"
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#00C49F"
+                      name="Revenue (£)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Peak Booking Hours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={peakTimes}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="hour" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="bookings" fill="#0088FE" />
+                    <Bar dataKey="bookings" fill="#8884d8" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
+          {/* Existing Service Distribution Chart */}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Services Distribution</CardTitle>
@@ -253,6 +381,28 @@ export default function ReportsPage() {
                     </Pie>
                     <Tooltip />
                   </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Location Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={locationStats}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="bookings" fill="#0088FE" name="Bookings" />
+                    <Bar yAxisId="right" dataKey="revenue" fill="#00C49F" name="Revenue (£)" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
