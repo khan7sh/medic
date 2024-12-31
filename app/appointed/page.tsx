@@ -82,7 +82,10 @@ interface FilterState {
   paymentStatus: string
   location: string
   search: string
-  dateRange: DateRange | undefined
+  dateRange: {
+    from: Date
+    to: Date
+  }
 }
 
 const initialFilters: FilterState = {
@@ -118,6 +121,7 @@ export default function BookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const { toast } = useToast()
+  const [updatingBookingId, setUpdatingBookingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -206,6 +210,7 @@ export default function BookingsPage() {
 
   async function handleStatusChange(bookingId: string, newStatus: Booking['status']) {
     try {
+      setUpdatingBookingId(bookingId)
       const { error } = await supabase
         .from('bookings')
         .update({ 
@@ -216,12 +221,18 @@ export default function BookingsPage() {
 
       if (error) throw error
 
+      setBookings(current =>
+        current.map(booking =>
+          booking.id === bookingId
+            ? { ...booking, status: newStatus, updated_at: new Date().toISOString() }
+            : booking
+        )
+      )
+
       toast({
         title: 'Success',
-        description: 'Booking status updated successfully',
+        description: `Booking marked as ${newStatus}`,
       })
-
-      fetchBookings()
     } catch (error) {
       console.error('Error updating booking status:', error)
       toast({
@@ -229,6 +240,8 @@ export default function BookingsPage() {
         description: 'Failed to update booking status',
         variant: 'destructive',
       })
+    } finally {
+      setUpdatingBookingId(null)
     }
   }
 
@@ -264,6 +277,16 @@ export default function BookingsPage() {
     link.href = url
     link.download = `bookings-${format(new Date(), 'yyyy-MM-dd')}.csv`
     link.click()
+  }
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setFilters(prev => ({
+      ...prev,
+      dateRange: range ? {
+        from: range.from || prev.dateRange.from,
+        to: range.to || prev.dateRange.to
+      } : prev.dateRange
+    }))
   }
 
   return (
@@ -356,8 +379,8 @@ export default function BookingsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Date Range</label>
                 <DateRangePicker
-                  value={filters.dateRange || { from: undefined, to: undefined }}
-                  onChange={(range) => setFilters(prev => ({ ...prev, dateRange: range || undefined }))}
+                  value={filters.dateRange}
+                  onChange={handleDateRangeChange}
                 />
               </div>
             </div>
@@ -429,7 +452,8 @@ export default function BookingsPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation()
                                     setSelectedBooking(booking)
                                     setIsDetailsOpen(true)
                                   }}
@@ -447,10 +471,21 @@ export default function BookingsPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleStatusChange(booking.id, 'completed')}
-                                  disabled={booking.status === 'completed' || booking.status === 'cancelled'}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleStatusChange(booking.id, 'completed')
+                                  }}
+                                  disabled={
+                                    booking.status === 'completed' || 
+                                    booking.status === 'cancelled' ||
+                                    updatingBookingId === booking.id
+                                  }
                                 >
-                                  <Check className="h-4 w-4" />
+                                  {updatingBookingId === booking.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Check className="h-4 w-4" />
+                                  )}
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Mark as Completed</TooltipContent>
@@ -463,10 +498,21 @@ export default function BookingsPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleStatusChange(booking.id, 'cancelled')}
-                                  disabled={booking.status === 'completed' || booking.status === 'cancelled'}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleStatusChange(booking.id, 'cancelled')
+                                  }}
+                                  disabled={
+                                    booking.status === 'completed' || 
+                                    booking.status === 'cancelled' ||
+                                    updatingBookingId === booking.id
+                                  }
                                 >
-                                  <X className="h-4 w-4" />
+                                  {updatingBookingId === booking.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <X className="h-4 w-4" />
+                                  )}
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>Cancel Booking</TooltipContent>
