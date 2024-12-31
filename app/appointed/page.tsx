@@ -98,7 +98,7 @@ const initialFilters: FilterState = {
   location: 'all',
   search: '',
   dateRange: {
-    from: new Date(new Date().setHours(0, 0, 0, 0)),
+    from: new Date(new Date().setMonth(new Date().getMonth() - 1)),
     to: new Date(new Date().setHours(23, 59, 59, 999))
   }
 }
@@ -152,68 +152,95 @@ export default function BookingsPage() {
   async function fetchBookings() {
     setLoading(true)
     try {
+      console.log('Fetching bookings with filters:', filters)
+
+      // Start with a basic query
       let query = supabase
         .from('bookings')
         .select('*')
 
+      // Log the initial query
+      console.log('Initial query:', query)
+
+      // Apply filters one by one and log each step
       if (filters.status !== 'all') {
+        console.log('Applying status filter:', filters.status)
         query = query.eq('status', filters.status)
       }
       
       if (filters.paymentStatus !== 'all') {
+        console.log('Applying payment status filter:', filters.paymentStatus)
         query = query.eq('payment_status', filters.paymentStatus)
       }
 
       if (filters.location !== 'all') {
+        console.log('Applying location filter:', filters.location)
         query = query.eq('location', filters.location)
       }
 
-      if (filters.dateRange.from && filters.dateRange.to) {
+      // Apply date range filter if both dates are present
+      if (filters.dateRange?.from && filters.dateRange?.to) {
         const fromDate = format(filters.dateRange.from, 'yyyy-MM-dd')
         const toDate = format(filters.dateRange.to, 'yyyy-MM-dd')
+        console.log('Applying date range filter:', { fromDate, toDate })
         query = query
           .gte('date', fromDate)
           .lte('date', toDate)
       }
 
+      // Apply sorting
       query = query.order(sortConfig.key, { ascending: sortConfig.direction === 'asc' })
+      console.log('Applied sorting:', sortConfig)
 
-      const { data, error } = await query
+      // Execute the query
+      const { data, error, count } = await query
+
+      // Log the raw response
+      console.log('Database response:', { data, error, count })
 
       if (error) {
         console.error('Database query error:', error)
         throw error
       }
 
-      if (!data) {
+      if (!data || data.length === 0) {
+        console.log('No bookings found')
         setBookings([])
         return
       }
 
-      const transformedData = data.map(item => ({
-        ...item,
-        status: item.status || 'pending',
-        payment_status: item.payment_status || 'pending',
-        price: typeof item.price === 'number' ? item.price : 0,
-        date: item.date || format(new Date(), 'yyyy-MM-dd'),
-        time: item.time || '00:00',
-        created_at: item.created_at || new Date().toISOString(),
-      })) as Booking[]
+      // Transform the data
+      const transformedData = data.map(item => {
+        const transformed = {
+          ...item,
+          status: item.status || 'pending',
+          payment_status: item.payment_status || 'pending',
+          price: typeof item.price === 'number' ? item.price : 0,
+          date: item.date || format(new Date(), 'yyyy-MM-dd'),
+          time: item.time || '00:00',
+          created_at: item.created_at || new Date().toISOString(),
+        }
+        console.log('Transformed booking:', transformed)
+        return transformed
+      }) as Booking[]
 
+      // Apply search filter if needed
       let filteredData = transformedData
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
-        filteredData = filteredData.filter(booking =>
-          `${booking.first_name} ${booking.last_name} ${booking.email} ${booking.service_title} ${booking.location}`
-            .toLowerCase()
-            .includes(searchTerm)
-        )
+        console.log('Applying search filter:', searchTerm)
+        filteredData = filteredData.filter(booking => {
+          const searchString = `${booking.first_name} ${booking.last_name} ${booking.email} ${booking.service_title} ${booking.location}`.toLowerCase()
+          return searchString.includes(searchTerm)
+        })
       }
 
-      console.log('Fetched bookings:', filteredData)
+      // Log final results
+      console.log('Final filtered bookings:', filteredData)
       setBookings(filteredData)
+
     } catch (error) {
-      console.error('Error fetching bookings:', error)
+      console.error('Error in fetchBookings:', error)
       toast({
         title: 'Error',
         description: 'Failed to fetch bookings. Please try again.',
@@ -311,6 +338,11 @@ export default function BookingsPage() {
   useEffect(() => {
     console.log('Current filters:', filters)
   }, [filters])
+
+  // Add debug effect for bookings state
+  useEffect(() => {
+    console.log('Bookings state updated:', bookings)
+  }, [bookings])
 
   return (
     <AdminLayout>
