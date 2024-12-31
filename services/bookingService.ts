@@ -60,20 +60,35 @@ export async function createBooking(bookingData: BookingData) {
 
 export async function sendConfirmationEmail(booking: BookingData) {
   try {
+    console.log('Attempting to send confirmation email with data:', booking)
+    
     const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(booking),
+      body: JSON.stringify({
+        service_title: booking.service_title,
+        location: booking.location,
+        date: booking.date,
+        time: booking.time,
+        first_name: booking.first_name,
+        last_name: booking.last_name,
+        email: booking.email,
+        payment_method: booking.payment_method,
+        payment_status: booking.payment_status,
+        price: booking.price
+      }),
     })
 
+    const data = await response.json()
+
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || 'Failed to send email')
+      console.error('Email API response error:', data)
+      throw new Error(data.error || 'Failed to send email')
     }
 
-    return await response.json()
+    return data
   } catch (error) {
     console.error('Failed to send confirmation email:', error)
     throw error

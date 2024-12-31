@@ -29,17 +29,28 @@ export default function ConfirmationPage() {
           price: searchParams.get('price') || ''
         }
 
+        console.log('Sending confirmation email with data:', bookingData)
+
         // Send confirmation email to client
-        await sendConfirmationEmail(bookingData)
+        const emailResult = await sendConfirmationEmail(bookingData)
+        console.log('Client email result:', emailResult)
 
         // Send notification email to admin
-        await fetch('/api/send-admin-notification', {
+        const adminResult = await fetch('/api/send-admin-notification', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(bookingData),
         })
+
+        if (!adminResult.ok) {
+          const adminError = await adminResult.json()
+          console.error('Admin notification error:', adminError)
+          throw new Error('Failed to send admin notification')
+        }
+
+        console.log('Admin notification sent successfully')
       } catch (error) {
         console.error('Failed to send emails:', error)
         toast({
