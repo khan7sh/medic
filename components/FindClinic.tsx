@@ -174,7 +174,18 @@ export default function FindClinic() {
                       <Clock className="h-5 w-5 mr-2 text-primary" />
                       <span>{clinic.hours}</span>
                     </div>
-                    <Button asChild className="w-full mt-4">
+                    <Button asChild variant="outline" className="w-full mt-4">
+                      <Link 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clinic.name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                      >
+                        <MapPin className="mr-2 h-4 w-4" />
+                        View on Maps
+                      </Link>
+                    </Button>
+                    <Button asChild className="w-full mt-2">
                       <Link href={`/booking/services?location=${clinic.id}`}>
                         Book at this Clinic
                       </Link>
