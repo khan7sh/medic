@@ -36,7 +36,8 @@ const services = [
       'Dedicated support for training programs',
       'Competitive group rates'
     ],
-    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    location: '17 Emery Avenue, Newcastle Under Lyme, Staffordshire ST5 2JG'
   },
   {
     title: 'Haulage Companies',
@@ -47,7 +48,8 @@ const services = [
       'Digital record management',
       'Priority booking system'
     ],
-    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    location: '17 Emery Avenue, Newcastle Under Lyme, Staffordshire ST5 2JG'
   },
   {
     title: 'Bus Companies',
@@ -58,7 +60,8 @@ const services = [
       'Flexible payment options',
       'Regular renewal reminders'
     ],
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    location: '17 Emery Avenue, Newcastle Under Lyme, Staffordshire ST5 2JG'
   }
 ]
 
@@ -141,6 +144,20 @@ export default function BusinessServices() {
                         </li>
                       ))}
                     </ul>
+                    <div className="mt-6">
+                      <p className="text-sm text-muted-foreground mb-3">{service.location}</p>
+                      <Button asChild variant="outline" size="sm">
+                        <Link 
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(service.location)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center"
+                        >
+                          <Building2 className="mr-2 h-4 w-4" />
+                          View on Maps
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -102,6 +102,12 @@ const BookingConfirmationEmail = ({
               <Text style={text}>
                 Your appointment is at our {location} clinic. Please arrive 10 minutes before your scheduled time and bring a valid form of ID.
               </Text>
+              <Link 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}
+                style={{ ...link, ...mapButton }}
+              >
+                View on Google Maps
+              </Link>
             </Section>
 
             {/* Contact Info */}
@@ -244,6 +250,16 @@ const footerText = {
   color: '#666',
   fontSize: '14px',
   margin: '4px 0',
+}
+
+const mapButton = {
+  display: 'inline-block',
+  backgroundColor: '#0066cc',
+  color: '#ffffff',
+  padding: '10px 20px',
+  borderRadius: '6px',
+  textDecoration: 'none',
+  marginTop: '12px',
 }
 
 export default BookingConfirmationEmail 
