@@ -154,49 +154,57 @@ export default function BookingsPage() {
     try {
       console.log('Fetching bookings with filters:', filters)
 
-      // Start with a basic query
+      // First, try a simple query without any filters to verify we can get data
+      const { data: testData, error: testError } = await supabase
+        .from('bookings')
+        .select('*')
+        .limit(1)
+
+      console.log('Test query result:', { testData, testError })
+
+      // If we can't even get one row, there might be a table access issue
+      if (testError) {
+        console.error('Test query error:', testError)
+        throw testError
+      }
+
+      // Start building the main query
       let query = supabase
         .from('bookings')
         .select('*')
-
-      // Log the initial query
-      console.log('Initial query:', query)
-
-      // Apply filters one by one and log each step
-      if (filters.status !== 'all') {
-        console.log('Applying status filter:', filters.status)
-        query = query.eq('status', filters.status)
-      }
-      
-      if (filters.paymentStatus !== 'all') {
-        console.log('Applying payment status filter:', filters.paymentStatus)
-        query = query.eq('payment_status', filters.paymentStatus)
-      }
-
-      if (filters.location !== 'all') {
-        console.log('Applying location filter:', filters.location)
-        query = query.eq('location', filters.location)
-      }
 
       // Apply date range filter if both dates are present
       if (filters.dateRange?.from && filters.dateRange?.to) {
         const fromDate = format(filters.dateRange.from, 'yyyy-MM-dd')
         const toDate = format(filters.dateRange.to, 'yyyy-MM-dd')
-        console.log('Applying date range filter:', { fromDate, toDate })
+        console.log('Date range:', { fromDate, toDate })
+        
+        // Try using created_at instead of date field first
         query = query
-          .gte('date', fromDate)
-          .lte('date', toDate)
+          .gte('created_at', `${fromDate}T00:00:00`)
+          .lte('created_at', `${toDate}T23:59:59`)
+      }
+
+      // Apply other filters
+      if (filters.status !== 'all') {
+        query = query.eq('status', filters.status)
+      }
+      
+      if (filters.paymentStatus !== 'all') {
+        query = query.eq('payment_status', filters.paymentStatus)
+      }
+
+      if (filters.location !== 'all') {
+        query = query.eq('location', filters.location)
       }
 
       // Apply sorting
       query = query.order(sortConfig.key, { ascending: sortConfig.direction === 'asc' })
-      console.log('Applied sorting:', sortConfig)
 
       // Execute the query
       const { data, error, count } = await query
 
-      // Log the raw response
-      console.log('Database response:', { data, error, count })
+      console.log('Main query response:', { data, error, count })
 
       if (error) {
         console.error('Database query error:', error)
@@ -209,34 +217,27 @@ export default function BookingsPage() {
         return
       }
 
-      // Transform the data
-      const transformedData = data.map(item => {
-        const transformed = {
-          ...item,
-          status: item.status || 'pending',
-          payment_status: item.payment_status || 'pending',
-          price: typeof item.price === 'number' ? item.price : 0,
-          date: item.date || format(new Date(), 'yyyy-MM-dd'),
-          time: item.time || '00:00',
-          created_at: item.created_at || new Date().toISOString(),
-        }
-        console.log('Transformed booking:', transformed)
-        return transformed
-      }) as Booking[]
+      // Transform and set the data
+      const transformedData = data.map(item => ({
+        ...item,
+        status: item.status || 'pending',
+        payment_status: item.payment_status || 'pending',
+        price: typeof item.price === 'number' ? item.price : 0,
+        date: item.date || format(new Date(), 'yyyy-MM-dd'),
+        time: item.time || '00:00',
+        created_at: item.created_at || new Date().toISOString(),
+      })) as Booking[]
 
       // Apply search filter if needed
       let filteredData = transformedData
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
-        console.log('Applying search filter:', searchTerm)
         filteredData = filteredData.filter(booking => {
           const searchString = `${booking.first_name} ${booking.last_name} ${booking.email} ${booking.service_title} ${booking.location}`.toLowerCase()
           return searchString.includes(searchTerm)
         })
       }
 
-      // Log final results
-      console.log('Final filtered bookings:', filteredData)
       setBookings(filteredData)
 
     } catch (error) {
