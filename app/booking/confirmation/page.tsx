@@ -74,8 +74,8 @@ export default function ConfirmationPage() {
     time: searchParams.get('time') || '',
     name: searchParams.get('name') || '',
     email: searchParams.get('email') || '',
-    paymentMethod: 'Online Payment',
-    paymentStatus: 'Paid',
+    paymentMethod: searchParams.get('paymentMethod') || 'Online Payment',
+    paymentStatus: searchParams.get('paymentStatus') || 'Paid',
     price: searchParams.get('price') || ''
   }
 

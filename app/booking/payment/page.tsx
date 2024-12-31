@@ -102,8 +102,8 @@ export default function PaymentPage() {
         name: name || '',
         email: email || '',
         price: servicePrice || '',
-        paymentMethod: 'inPerson',
-        paymentStatus: 'pending'
+        paymentMethod: 'In Person',
+        paymentStatus: 'Pending'
       })
       router.push(`/booking/confirmation?${params.toString()}`)
       return
