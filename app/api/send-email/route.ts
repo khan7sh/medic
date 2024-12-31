@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { BookingConfirmationEmail } from '@/components/emails/BookingConfirmation'
+import BookingConfirmationEmail from '@/components/emails/BookingConfirmation'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -45,9 +45,6 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Failed to send client email:', error)
     console.error('Error details:', error.message)
-    if (error.response) {
-      console.error('Error response:', await error.response.text())
-    }
     return NextResponse.json(
       { error: 'Failed to send email', details: error.message },
       { status: 500 }

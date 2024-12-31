@@ -20,7 +20,7 @@ interface BookingConfirmationEmailProps {
   paymentStatus: string
 }
 
-export default function BookingConfirmationEmail({
+const BookingConfirmationEmail = ({
   customerName,
   serviceName,
   location,
@@ -29,7 +29,7 @@ export default function BookingConfirmationEmail({
   price,
   paymentMethod,
   paymentStatus,
-}: BookingConfirmationEmailProps) {
+}: BookingConfirmationEmailProps) => {
   return (
     <Html>
       <Preview>Your medical assessment booking confirmation</Preview>
@@ -77,6 +77,8 @@ export default function BookingConfirmationEmail({
     </Html>
   )
 }
+
+export default BookingConfirmationEmail
 
 const main = {
   backgroundColor: '#ffffff',
