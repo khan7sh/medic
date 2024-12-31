@@ -19,8 +19,8 @@ export async function POST(request: Request) {
 
     console.log('Attempting to send email with Resend...')
     const { data, error } = await resend.emails.send({
-      from: 'Medical D4 <khan7akh@gmail.com>',
-      reply_to: 'khan7akh@gmail.com',
+      from: 'Medical D4 <contact@optimizeai.agency>',
+      reply_to: 'contact@optimizeai.agency',
       to: booking.email,
       subject: 'Your Medical Assessment Booking Confirmation',
       react: BookingConfirmationEmail({

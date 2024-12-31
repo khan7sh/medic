@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khan7akh@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@optimizeai.agency'
 
 export async function POST(request: Request) {
   try {
@@ -10,8 +10,8 @@ export async function POST(request: Request) {
     console.log('Sending admin notification for booking:', booking)
     
     const { data, error } = await resend.emails.send({
-      from: 'Medical D4 <khan7akh@gmail.com>',
-      reply_to: 'khan7akh@gmail.com',
+      from: 'Medical D4 <contact@optimizeai.agency>',
+      reply_to: 'contact@optimizeai.agency',
       to: ADMIN_EMAIL,
       subject: 'New Booking Notification',
       html: `
@@ -36,14 +36,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log('Admin notification sent successfully:', data)
     return NextResponse.json({ success: true, data })
   } catch (error: any) {
     console.error('Failed to send admin notification:', error)
     console.error('Error details:', error.message)
-    if (error.response) {
-      console.error('Error response:', await error.response.text())
-    }
     return NextResponse.json(
       { error: 'Failed to send admin notification', details: error.message },
       { status: 500 }
