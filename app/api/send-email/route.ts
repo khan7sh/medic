@@ -17,8 +17,10 @@ export async function POST(request: Request) {
       )
     }
 
+    console.log('Attempting to send email with Resend...')
     const { data, error } = await resend.emails.send({
       from: 'Medical D4 <khan7akh@gmail.com>',
+      reply_to: 'khan7akh@gmail.com',
       to: booking.email,
       subject: 'Your Medical Assessment Booking Confirmation',
       react: BookingConfirmationEmail({
@@ -34,16 +36,20 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      console.error('Resend API error:', error)
+      console.error('Resend API error details:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     console.log('Email sent successfully:', data)
     return NextResponse.json({ success: true, data })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send client email:', error)
+    console.error('Error details:', error.message)
+    if (error.response) {
+      console.error('Error response:', await error.response.text())
+    }
     return NextResponse.json(
-      { error: 'Failed to send email' },
+      { error: 'Failed to send email', details: error.message },
       { status: 500 }
     )
   }

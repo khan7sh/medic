@@ -7,9 +7,11 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khan7akh@gmail.com'
 export async function POST(request: Request) {
   try {
     const booking = await request.json()
+    console.log('Sending admin notification for booking:', booking)
     
     const { data, error } = await resend.emails.send({
       from: 'Medical D4 <khan7akh@gmail.com>',
+      reply_to: 'khan7akh@gmail.com',
       to: ADMIN_EMAIL,
       subject: 'New Booking Notification',
       html: `
@@ -30,15 +32,20 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      console.error('Admin notification error:', error)
+      console.error('Admin notification error details:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    console.log('Admin notification sent successfully:', data)
     return NextResponse.json({ success: true, data })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to send admin notification:', error)
+    console.error('Error details:', error.message)
+    if (error.response) {
+      console.error('Error response:', await error.response.text())
+    }
     return NextResponse.json(
-      { error: 'Failed to send admin notification' },
+      { error: 'Failed to send admin notification', details: error.message },
       { status: 500 }
     )
   }
