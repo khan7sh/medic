@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const booking = await request.json()
     
     const { data, error } = await resend.emails.send({
-      from: 'Medical D4 <tedbeker0@gmail.com>',
+      from: 'Medical D4 <khan7akh@gmail.com>',
       to: booking.email,
       subject: 'Your Medical Assessment Booking Confirmation',
       react: BookingConfirmationEmail({

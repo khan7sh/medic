@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'tedbeker0@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'khan7akh@gmail.com'
 
 export async function POST(request: Request) {
   try {
     const booking = await request.json()
     
     const { data, error } = await resend.emails.send({
-      from: 'Medical D4 <tedbeker0@gmail.com>',
+      from: 'Medical D4 <khan7akh@gmail.com>',
       to: ADMIN_EMAIL,
       subject: 'New Booking Notification',
       html: `
