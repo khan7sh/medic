@@ -24,8 +24,8 @@ export default function ConfirmationPage() {
           first_name: searchParams.get('name')?.split(' ')[0] || '',
           last_name: searchParams.get('name')?.split(' ')[1] || '',
           email: searchParams.get('email') || '',
-          payment_method: 'online',
-          payment_status: 'paid',
+          payment_method: searchParams.get('paymentMethod') || 'Online Payment',
+          payment_status: searchParams.get('paymentStatus') || 'Paid',
           price: searchParams.get('price') || ''
         }
 

@@ -30,8 +30,8 @@ export async function POST(request: Request) {
         date: booking.date,
         time: booking.time,
         price: booking.price.toString(),
-        paymentMethod: booking.payment_method === 'online' ? 'Online Payment' : 'Pay at Clinic',
-        paymentStatus: booking.payment_status === 'paid' ? 'Paid' : 'Pending'
+        paymentMethod: booking.payment_method,
+        paymentStatus: booking.payment_status
       })
     })
 
