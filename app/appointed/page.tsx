@@ -77,9 +77,13 @@ interface Booking {
   payment_intent_id: string | null
 }
 
+// Add type for status values
+type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed'
+type PaymentStatus = 'pending' | 'paid' | 'failed'
+
 interface FilterState {
-  status: string
-  paymentStatus: string
+  status: 'all' | BookingStatus
+  paymentStatus: 'all' | PaymentStatus
   location: string
   search: string
   dateRange: {
@@ -94,8 +98,8 @@ const initialFilters: FilterState = {
   location: 'all',
   search: '',
   dateRange: {
-    from: new Date(),
-    to: new Date()
+    from: new Date(new Date().setHours(0, 0, 0, 0)),
+    to: new Date(new Date().setHours(23, 59, 59, 999))
   }
 }
 
@@ -151,21 +155,20 @@ export default function BookingsPage() {
       let query = supabase
         .from('bookings')
         .select('*')
-        .order(sortConfig.key, { ascending: sortConfig.direction === 'asc' })
 
       if (filters.status !== 'all') {
-        query = query.eq('status', filters.status as Booking['status'])
+        query = query.eq('status', filters.status)
       }
       
       if (filters.paymentStatus !== 'all') {
-        query = query.eq('payment_status', filters.paymentStatus as Booking['payment_status'])
+        query = query.eq('payment_status', filters.paymentStatus)
       }
 
       if (filters.location !== 'all') {
         query = query.eq('location', filters.location)
       }
 
-      if (filters.dateRange?.from && filters.dateRange?.to) {
+      if (filters.dateRange.from && filters.dateRange.to) {
         const fromDate = format(filters.dateRange.from, 'yyyy-MM-dd')
         const toDate = format(filters.dateRange.to, 'yyyy-MM-dd')
         query = query
@@ -173,36 +176,50 @@ export default function BookingsPage() {
           .lte('date', toDate)
       }
 
+      query = query.order(sortConfig.key, { ascending: sortConfig.direction === 'asc' })
+
       const { data, error } = await query
 
-      if (error) throw error
+      if (error) {
+        console.error('Database query error:', error)
+        throw error
+      }
 
-      const transformedData = (data || []).map(item => ({
+      if (!data) {
+        setBookings([])
+        return
+      }
+
+      const transformedData = data.map(item => ({
         ...item,
         status: item.status || 'pending',
         payment_status: item.payment_status || 'pending',
-        price: typeof item.price === 'number' ? item.price : 0
+        price: typeof item.price === 'number' ? item.price : 0,
+        date: item.date || format(new Date(), 'yyyy-MM-dd'),
+        time: item.time || '00:00',
+        created_at: item.created_at || new Date().toISOString(),
       })) as Booking[]
 
       let filteredData = transformedData
-
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
         filteredData = filteredData.filter(booking =>
-          `${booking.first_name} ${booking.last_name} ${booking.email} ${booking.service_title}`
+          `${booking.first_name} ${booking.last_name} ${booking.email} ${booking.service_title} ${booking.location}`
             .toLowerCase()
             .includes(searchTerm)
         )
       }
 
+      console.log('Fetched bookings:', filteredData)
       setBookings(filteredData)
     } catch (error) {
       console.error('Error fetching bookings:', error)
       toast({
         title: 'Error',
-        description: 'Failed to fetch bookings',
+        description: 'Failed to fetch bookings. Please try again.',
         variant: 'destructive',
       })
+      setBookings([])
     } finally {
       setLoading(false)
     }
@@ -280,14 +297,20 @@ export default function BookingsPage() {
   }
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
+    if (!range) return
+
     setFilters(prev => ({
       ...prev,
-      dateRange: range ? {
+      dateRange: {
         from: range.from || prev.dateRange.from,
         to: range.to || prev.dateRange.to
-      } : prev.dateRange
+      }
     }))
   }
+
+  useEffect(() => {
+    console.log('Current filters:', filters)
+  }, [filters])
 
   return (
     <AdminLayout>
@@ -323,7 +346,9 @@ export default function BookingsPage() {
                 <label className="text-sm font-medium">Status</label>
                 <Select
                   value={filters.status}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+                  onValueChange={(value: FilterState['status']) => 
+                    setFilters(prev => ({ ...prev, status: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by status" />
@@ -342,7 +367,9 @@ export default function BookingsPage() {
                 <label className="text-sm font-medium">Payment Status</label>
                 <Select
                   value={filters.paymentStatus}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, paymentStatus: value }))}
+                  onValueChange={(value: FilterState['paymentStatus']) => 
+                    setFilters(prev => ({ ...prev, paymentStatus: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by payment" />
@@ -392,6 +419,13 @@ export default function BookingsPage() {
             {loading ? (
               <div className="flex justify-center p-8">
                 <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : bookings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center">
+                <p className="text-muted-foreground mb-2">No bookings found</p>
+                <p className="text-sm text-muted-foreground">
+                  Try adjusting your filters or search criteria
+                </p>
               </div>
             ) : (
               <Table>
