@@ -5,7 +5,7 @@ export const VALID_DISCOUNT_CODES: Record<string, { amount: number, expiresAt: s
     },
     'SEBSI2308': {
       amount: 54,
-      expiresAt: '2024-12-31',
+      expiresAt: '2025-12-31',
       hidden: true
     }
   }
