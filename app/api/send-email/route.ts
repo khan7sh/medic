@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const booking = await request.json()
     
     const { data, error } = await resend.emails.send({
-      from: 'Medical Assessments <bookings@medicald4.com>',
+      from: 'Medical D4 <tedbeker0@gmail.com>',
       to: booking.email,
       subject: 'Your Medical Assessment Booking Confirmation',
       react: BookingConfirmationEmail({
@@ -25,11 +25,13 @@ export async function POST(request: Request) {
     })
 
     if (error) {
+      console.error('Client email error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
+    console.error('Failed to send client email:', error)
     return NextResponse.json(
       { error: 'Failed to send email' },
       { status: 500 }

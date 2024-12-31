@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       // Send confirmation email
       try {
         await resend.emails.send({
-          from: 'Medical Assessments <bookings@medicald4.com>',
+          from: 'Medical D4 <tedbeker0@gmail.com>',
           to: session.customer_email!,
           subject: 'Your Medical Assessment Booking Confirmation',
           react: BookingConfirmationEmail({
