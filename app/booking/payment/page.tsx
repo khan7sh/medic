@@ -92,6 +92,24 @@ export default function PaymentPage() {
   const email = searchParams.get('email')
 
   const handlePayment = async () => {
+    if (paymentMethod === 'inPerson') {
+      // For in-person payments, directly redirect to confirmation
+      const params = new URLSearchParams({
+        title: encodeURIComponent(serviceTitle || ''),
+        locationName: encodeURIComponent(locationName || ''),
+        date: date || '',
+        time: time || '',
+        name: name || '',
+        email: email || '',
+        price: servicePrice || '',
+        paymentMethod: 'inPerson',
+        paymentStatus: 'pending'
+      })
+      router.push(`/booking/confirmation?${params.toString()}`)
+      return
+    }
+
+    // Rest of the existing code for online payments
     const finalAmount = Number(servicePrice) - appliedDiscount
     
     try {
@@ -300,7 +318,7 @@ export default function PaymentPage() {
                 </>
               ) : (
                 <>
-                  Pay at Clinic
+                  Confirm Booking
                 </>
               )}
             </>
