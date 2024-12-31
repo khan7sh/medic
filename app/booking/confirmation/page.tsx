@@ -9,6 +9,9 @@ import BookingLayout from '@/components/booking/bookingLayout'
 export default function ConfirmationPage() {
   const searchParams = useSearchParams()
   
+  // Log all search params for debugging
+  console.log('Search params:', Object.fromEntries(searchParams.entries()))
+  
   const bookingDetails = {
     service: searchParams.get('title') ? decodeURIComponent(searchParams.get('title')!) : '',
     location: searchParams.get('locationName') ? decodeURIComponent(searchParams.get('locationName')!) : '',
@@ -20,6 +23,9 @@ export default function ConfirmationPage() {
     paymentStatus: 'Paid',
     price: searchParams.get('price') || ''
   }
+
+  // Log booking details for debugging
+  console.log('Booking details:', bookingDetails)
 
   return (
     <BookingLayout
@@ -35,12 +41,24 @@ export default function ConfirmationPage() {
         <div className="max-w-md mx-auto bg-secondary/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
           <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
           <div className="space-y-3 text-left text-sm sm:text-base">
-            <p><span className="font-medium">Service:</span> {bookingDetails.service}</p>
-            <p><span className="font-medium">Location:</span> {bookingDetails.location}</p>
-            <p><span className="font-medium">Date:</span> {bookingDetails.date}</p>
-            <p><span className="font-medium">Time:</span> {bookingDetails.time}</p>
-            <p><span className="font-medium">Name:</span> {bookingDetails.name}</p>
-            <p><span className="font-medium">Email:</span> {bookingDetails.email}</p>
+            {bookingDetails.service && (
+              <p><span className="font-medium">Service:</span> {bookingDetails.service}</p>
+            )}
+            {bookingDetails.location && (
+              <p><span className="font-medium">Location:</span> {bookingDetails.location}</p>
+            )}
+            {bookingDetails.date && (
+              <p><span className="font-medium">Date:</span> {bookingDetails.date}</p>
+            )}
+            {bookingDetails.time && (
+              <p><span className="font-medium">Time:</span> {bookingDetails.time}</p>
+            )}
+            {bookingDetails.name && (
+              <p><span className="font-medium">Name:</span> {bookingDetails.name}</p>
+            )}
+            {bookingDetails.email && (
+              <p><span className="font-medium">Email:</span> {bookingDetails.email}</p>
+            )}
             <p><span className="font-medium">Payment Method:</span> {bookingDetails.paymentMethod}</p>
             <p><span className="font-medium">Payment Status:</span> {bookingDetails.paymentStatus}</p>
             {bookingDetails.price && (

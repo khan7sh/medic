@@ -103,55 +103,44 @@ export default function PaymentPage() {
         title: decodeURIComponent(serviceTitle || ''),
         locationName: decodeURIComponent(locationName || ''),
         location: decodeURIComponent(locationName || ''),
-        date: date,
-        time: time,
-        name: name,
-        email: email,
+        date: searchParams.get('date'),
+        time: searchParams.get('time'),
+        name: searchParams.get('name'),
+        email: searchParams.get('email'),
         price: finalAmount,
         paymentMethod: 'online',
         paymentStatus: 'pending'
       }
       
+      console.log('Storing booking data:', bookingData)
       localStorage.setItem('pendingBooking', JSON.stringify(bookingData))
 
-      const response = await fetch('/api/create-payment-intent', {
+      // Create Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Number(finalAmount),
-          email: email,
-          name: name,
-          serviceTitle: decodeURIComponent(serviceTitle || ''),
-          metadata: bookingData
+          ...bookingData,
+          amount: finalAmount * 100, // Convert to cents for Stripe
         }),
       })
 
-      const data = await response.json()
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Payment session creation failed')
+        throw new Error('Failed to create checkout session')
       }
 
+      const data = await response.json()
+      
       const stripe = await stripePromise
       if (!stripe) {
         throw new Error('Stripe failed to initialize')
       }
 
-      const { error } = await stripe.redirectToCheckout({
+      await stripe.redirectToCheckout({
         sessionId: data.sessionId
       })
-
-      if (error) {
-        throw error
-      }
-
-      // After successful booking creation and payment
-      // Email will be sent via webhook after payment confirmation
-      
-      // Continue with the redirect
-      router.push(`/booking/confirmation?service=${searchParams.get('service')}&title=${searchParams.get('title')}&price=${finalAmount}&location=${searchParams.get('location')}&locationName=${encodeURIComponent(locationName || '')}&date=${searchParams.get('date')}&time=${searchParams.get('time')}&name=${searchParams.get('name')}&email=${searchParams.get('email')}&paymentMethod=online`)
     } catch (error) {
       console.error('Payment error:', error)
       toast({
