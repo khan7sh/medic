@@ -1,14 +1,58 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import BookingLayout from '@/components/booking/bookingLayout'
+import { sendConfirmationEmail } from '@/services/bookingService'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ConfirmationPage() {
   const searchParams = useSearchParams()
+  const { toast } = useToast()
   
+  useEffect(() => {
+    const sendEmails = async () => {
+      try {
+        const bookingData = {
+          service_title: searchParams.get('title') ? decodeURIComponent(searchParams.get('title')!) : '',
+          location: searchParams.get('locationName') ? decodeURIComponent(searchParams.get('locationName')!) : '',
+          date: searchParams.get('date') || '',
+          time: searchParams.get('time') || '',
+          first_name: searchParams.get('name')?.split(' ')[0] || '',
+          last_name: searchParams.get('name')?.split(' ')[1] || '',
+          email: searchParams.get('email') || '',
+          payment_method: 'online',
+          payment_status: 'paid',
+          price: searchParams.get('price') || ''
+        }
+
+        // Send confirmation email to client
+        await sendConfirmationEmail(bookingData)
+
+        // Send notification email to admin
+        await fetch('/api/send-admin-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingData),
+        })
+      } catch (error) {
+        console.error('Failed to send emails:', error)
+        toast({
+          title: 'Notice',
+          description: 'Your booking is confirmed, but we could not send confirmation emails.',
+          variant: 'destructive',
+        })
+      }
+    }
+
+    sendEmails()
+  }, [searchParams, toast])
+
   // Log all search params for debugging
   console.log('Search params:', Object.fromEntries(searchParams.entries()))
   
