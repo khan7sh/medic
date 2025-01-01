@@ -23,46 +23,46 @@ export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
   const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="mb-12">
-      <div className="relative max-w-4xl mx-auto px-4">
+    <div className="mb-8 sm:mb-10">
+      <div className="relative max-w-3xl mx-auto px-4">
         {/* Progress Bar Background */}
         <div 
-          className="absolute top-5 h-0.5 bg-muted"
+          className="absolute top-4 h-0.5 bg-muted/50"
           style={{ 
-            left: 'calc(8.33% + 20px)',
-            right: 'calc(8.33% + 20px)',
-            width: '83.33%'
+            left: 'calc(10% + 15px)',
+            right: 'calc(10% + 15px)',
+            width: '80%'
           }}
         />
         
         {/* Active Progress Bar */}
         <div 
-          className="absolute top-5 h-0.5 bg-primary transition-all duration-500"
+          className="absolute top-4 h-0.5 bg-primary transition-all duration-500 ease-in-out"
           style={{ 
-            left: 'calc(8.33% + 20px)',
-            width: `${progressPercentage * 0.8333}%`
+            left: 'calc(10% + 15px)',
+            width: `${progressPercentage * 0.8}%`
           }}
         />
         
         {/* Steps */}
         <div className="relative z-10 grid grid-cols-6 w-full">
           {steps.map(({ number, label }) => (
-            <div key={number} className="flex flex-col items-center w-full px-2">
+            <div key={number} className="flex flex-col items-center w-full px-1">
               <div 
-                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 bg-background ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 ease-in-out bg-background ${
                   number === currentStep 
-                    ? 'border-primary bg-primary text-white scale-110 shadow-lg shadow-primary/25' 
+                    ? 'border-primary bg-primary text-white scale-110 shadow-lg shadow-primary/20' 
                     : number < currentStep 
                       ? 'border-primary bg-primary text-white'
-                      : 'border-muted text-muted-foreground'
+                      : 'border-muted/50 text-muted-foreground'
                 }`}
               >
-                <div className="relative z-10 flex items-center justify-center w-full h-full rounded-full">
+                <div className="relative z-10 flex items-center justify-center w-full h-full rounded-full text-sm">
                   {number < currentStep ? '✓' : number}
                 </div>
               </div>
               <span 
-                className={`mt-4 text-xs sm:text-sm font-medium text-center leading-tight min-h-[32px] w-full ${
+                className={`mt-2 text-[11px] sm:text-xs font-medium text-center leading-tight ${
                   number === currentStep ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >

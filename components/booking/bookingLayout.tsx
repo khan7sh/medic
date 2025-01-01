@@ -18,17 +18,17 @@ export default function BookingLayout({
   description
 }: BookingLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-secondary/5">
       <Header />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6 sm:mb-12">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-4 sm:mb-8">
             <ProgressSteps currentStep={currentStep} />
           </div>
           
-          <div className="text-center mb-6 sm:mb-12">
-            <h1 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">{title}</h1>
-            <p className="text-sm sm:text-lg text-muted-foreground">{description}</p>
+          <div className="text-center mb-6 sm:mb-10">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">{title}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">{description}</p>
           </div>
 
           {children}
