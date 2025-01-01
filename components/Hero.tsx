@@ -30,16 +30,18 @@ export default function Hero() {
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8 sm:py-16">
         <div className="text-center">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary mb-4 animate-fade-in">
-            <Tag className="h-4 w-4 mr-2" />
-            <span className="text-sm font-medium">
-              Save £5 on your medical assessment! Use code <span className="font-bold">2025D</span> at checkout.
-              <span className="text-primary/80 ml-1">(Valid until Dec 31, 2025)</span>
-            </span>
-          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary animate-fade-in">
+              <Tag className="h-4 w-4 mr-2" />
+              <span className="text-sm font-medium whitespace-nowrap">
+                Save £5 on your medical assessment! Use code <span className="font-bold">2025D</span> at checkout.
+                <span className="text-primary/80 ml-1">(Valid until Dec 31, 2025)</span>
+              </span>
+            </div>
 
-          <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary mb-8 animate-fade-in">
-            <span className="text-sm font-medium">Trusted by 10,000+ Drivers</span>
+            <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary animate-fade-in">
+              <span className="text-sm font-medium whitespace-nowrap">Trusted by 10,000+ Drivers</span>
+            </div>
           </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight font-extrabold mb-4 sm:mb-6 animate-fade-in-up">
