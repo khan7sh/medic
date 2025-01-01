@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight, MapPin, Download, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, MapPin, Download, CheckCircle2, Tag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -28,9 +28,17 @@ export default function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-secondary/5" />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 sm:py-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8 sm:py-16">
         <div className="text-center">
-          <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary mb-6 animate-fade-in">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary mb-4 animate-fade-in">
+            <Tag className="h-4 w-4 mr-2" />
+            <span className="text-sm font-medium">
+              Save £5 on your medical assessment! Use code <span className="font-bold">2025D</span> at checkout.
+              <span className="text-primary/80 ml-1">(Valid until Dec 31, 2025)</span>
+            </span>
+          </div>
+
+          <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary mb-8 animate-fade-in">
             <span className="text-sm font-medium">Trusted by 10,000+ Drivers</span>
           </div>
           
