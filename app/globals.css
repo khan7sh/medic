@@ -42,6 +42,43 @@
   }
 }
 
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  .bg-grid {
+    background-size: 100px 100px;
+    background-image: linear-gradient(to right, rgb(var(--primary) / 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgb(var(--primary) / 0.05) 1px, transparent 1px);
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
 .font-lora {
   font-family: var(--font-lora);
 }
