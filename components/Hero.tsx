@@ -28,9 +28,9 @@ export default function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-secondary/5" />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8 sm:py-16">
-        <div className="text-center">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center -mt-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 sm:mb-16">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary animate-fade-in">
               <Tag className="h-4 w-4 mr-2" />
               <span className="text-sm font-medium whitespace-nowrap">
@@ -44,22 +44,22 @@ export default function Hero() {
             </div>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight font-extrabold mb-4 sm:mb-6 animate-fade-in-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight font-extrabold mb-6 sm:mb-8 animate-fade-in-up">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/90 to-primary/80">
               Medical D4 Assessments
             </span>
           </h1>
 
-          <div className="flex items-center justify-center gap-3 mb-6 animate-fade-in-up [animation-delay:200ms]">
+          <div className="flex items-center justify-center gap-3 mb-8 sm:mb-10 animate-fade-in-up [animation-delay:200ms]">
             <span className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">£55</span>
             <span className="text-lg sm:text-xl text-muted-foreground">(VAT & Eye Test Included)</span>
           </div>
 
-          <p className="mt-3 max-w-md mx-auto text-lg sm:text-xl md:text-2xl text-foreground/90 font-medium animate-fade-in-up [animation-delay:400ms]">
+          <p className="max-w-md mx-auto text-lg sm:text-xl md:text-2xl text-foreground/90 font-medium mb-10 sm:mb-12 animate-fade-in-up [animation-delay:400ms]">
             We provide the cheapest medical assessments, eye test included, for drivers nationwide.
           </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-4 animate-fade-in-up [animation-delay:600ms]">
+          <div className="flex flex-wrap justify-center gap-4 mb-10 sm:mb-12 animate-fade-in-up [animation-delay:600ms]">
             {highlights.map((highlight, index) => (
               <div 
                 key={highlight}
@@ -71,7 +71,7 @@ export default function Hero() {
             ))}
           </div>
 
-          <div className="mt-10 sm:mt-12 animate-fade-in-up [animation-delay:800ms]">
+          <div className="animate-fade-in-up [animation-delay:800ms]">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 asChild
