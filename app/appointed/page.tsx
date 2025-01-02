@@ -27,7 +27,8 @@ import {
   Search,
   Filter,
   ArrowUpDown,
-  FileDown
+  FileDown,
+  ChevronDown
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { DateRange } from 'react-day-picker'
@@ -54,6 +55,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 
 interface Booking {
   id: string
@@ -347,83 +355,196 @@ export default function BookingsPage() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Bookings Dashboard</h1>
-          <Button onClick={exportBookings}>
-            <FileDown className="mr-2 h-4 w-4" />
-            Export Bookings
-          </Button>
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Bookings</p>
+                <h3 className="text-2xl font-bold">{bookings.length}</h3>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <Clock className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Pending</p>
+                <h3 className="text-2xl font-bold">
+                  {bookings.filter(b => b.status === 'pending').length}
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 bg-green-100 rounded-full">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Completed</p>
+                <h3 className="text-2xl font-bold">
+                  {bookings.filter(b => b.status === 'completed').length}
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Calendar className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Today's Bookings</p>
+                <h3 className="text-2xl font-bold">
+                  {bookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd')).length}
+                </h3>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Filters Section */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Filters</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Search</label>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search bookings..."
-                    value={filters.search}
-                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                    className="pl-8"
-                  />
-                </div>
+          <CardContent className="p-4 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search bookings..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="w-full pl-9"
+                />
+              </div>
+              
+              {/* Mobile: Show filters in a sheet */}
+              <div className="sm:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Date Range</label>
+                        <DateRangePicker
+                          value={filters.dateRange}
+                          onChange={handleDateRangeChange}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Status</label>
+                        <Select
+                          value={filters.status}
+                          onValueChange={(value) => setFilters({ ...filters, status: value as any })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Filter by status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Payment Status</label>
+                        <Select
+                          value={filters.paymentStatus}
+                          onValueChange={(value) => setFilters({ ...filters, paymentStatus: value as any })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Filter by payment" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="failed">Failed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Location</label>
+                        <Select
+                          value={filters.location}
+                          onValueChange={(value) => setFilters({ ...filters, location: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Filter by location" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Locations</SelectItem>
+                            {locations.map((location) => (
+                              <SelectItem key={location} value={location}>
+                                {location}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Status</label>
+              {/* Desktop: Show filters inline */}
+              <div className="hidden sm:flex gap-4">
+                <DateRangePicker
+                  value={filters.dateRange}
+                  onChange={handleDateRangeChange}
+                />
                 <Select
                   value={filters.status}
-                  onValueChange={(value: FilterState['status']) => 
-                    setFilters(prev => ({ ...prev, status: value }))
-                  }
+                  onValueChange={(value) => setFilters({ ...filters, status: value as any })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by status" />
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Payment Status</label>
                 <Select
                   value={filters.paymentStatus}
-                  onValueChange={(value: FilterState['paymentStatus']) => 
-                    setFilters(prev => ({ ...prev, paymentStatus: value }))
-                  }
+                  onValueChange={(value) => setFilters({ ...filters, paymentStatus: value as any })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by payment" />
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Payment" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Payments</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="paid">Paid</SelectItem>
                     <SelectItem value="failed">Failed</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Location</label>
                 <Select
                   value={filters.location}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, location: value }))}
+                  onValueChange={(value) => setFilters({ ...filters, location: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by location" />
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Location" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Locations</SelectItem>
@@ -436,192 +557,183 @@ export default function BookingsPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Date Range</label>
-                <DateRangePicker
-                  value={filters.dateRange}
-                  onChange={handleDateRangeChange}
-                />
-              </div>
+              <Button
+                variant="outline"
+                onClick={exportBookings}
+                className="whitespace-nowrap"
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Export
+              </Button>
             </div>
           </CardContent>
         </Card>
 
+        {/* Bookings Table */}
         <Card>
           <CardContent className="p-0">
-            {loading ? (
-              <div className="flex justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin" />
-              </div>
-            ) : bookings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center">
-                <p className="text-muted-foreground mb-2">No bookings found</p>
-                <p className="text-sm text-muted-foreground">
-                  Try adjusting your filters or search criteria
-                </p>
-              </div>
-            ) : (
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort('service_title')}>
-                      Service
-                      <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+                    <TableHead className="w-[100px]">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleSort('created_at')}
+                        className="font-semibold"
+                      >
+                        Date
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                      </Button>
                     </TableHead>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort('first_name')}>
-                      Customer
-                      <ArrowUpDown className="ml-2 h-4 w-4 inline" />
-                    </TableHead>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort('date')}>
-                      Date & Time
-                      <ArrowUpDown className="ml-2 h-4 w-4 inline" />
-                    </TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead className="hidden sm:table-cell">Customer</TableHead>
+                    <TableHead className="hidden lg:table-cell">Location</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Payment</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead className="hidden sm:table-cell">Payment</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {bookings.map((booking) => (
-                    <TableRow key={booking.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell className="font-medium">{booking.service_title}</TableCell>
-                      <TableCell>
-                        <div>
-                          {booking.first_name} {booking.last_name}
-                          <div className="text-sm text-muted-foreground">
-                            {booking.email}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          {format(new Date(booking.date), 'MMM dd, yyyy')}
-                          <div className="text-sm text-muted-foreground">
-                            {booking.time}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[booking.status]}>
-                          {booking.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={paymentStatusColors[booking.payment_status]}>
-                          {booking.payment_status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setSelectedBooking(booking)
-                                    setIsDetailsOpen(true)
-                                  }}
-                                >
-                                  <Search className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>View Details</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleStatusChange(booking.id, 'completed')
-                                  }}
-                                  disabled={
-                                    booking.status === 'completed' || 
-                                    booking.status === 'cancelled' ||
-                                    updatingBookingId === booking.id
-                                  }
-                                >
-                                  {updatingBookingId === booking.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Check className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Mark as Completed</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleStatusChange(booking.id, 'cancelled')
-                                  }}
-                                  disabled={
-                                    booking.status === 'completed' || 
-                                    booking.status === 'cancelled' ||
-                                    updatingBookingId === booking.id
-                                  }
-                                >
-                                  {updatingBookingId === booking.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <X className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Cancel Booking</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : bookings.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                        No bookings found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    bookings.map((booking) => (
+                      <TableRow key={booking.id} className="group">
+                        <TableCell className="font-medium">
+                          {format(new Date(booking.created_at), 'dd/MM/yy')}
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {booking.service_title}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {booking.first_name} {booking.last_name}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          {booking.location}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={statusColors[booking.status]}>
+                            {booking.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <Badge className={paymentStatusColors[booking.payment_status]}>
+                            {booking.payment_status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setSelectedBooking(booking)
+                                      setIsDetailsOpen(true)
+                                    }}
+                                  >
+                                    <Search className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>View Details</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleStatusChange(booking.id, 'completed')}
+                                    disabled={
+                                      booking.status === 'completed' || 
+                                      booking.status === 'cancelled' ||
+                                      updatingBookingId === booking.id
+                                    }
+                                  >
+                                    {updatingBookingId === booking.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <Check className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Mark as Completed</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleStatusChange(booking.id, 'cancelled')}
+                                    disabled={
+                                      booking.status === 'completed' || 
+                                      booking.status === 'cancelled' ||
+                                      updatingBookingId === booking.id
+                                    }
+                                  >
+                                    {updatingBookingId === booking.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <X className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Cancel Booking</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
-            )}
+            </div>
           </CardContent>
         </Card>
 
+        {/* Booking Details Dialog */}
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Booking Details</DialogTitle>
             </DialogHeader>
             {selectedBooking && (
-              <div className="space-y-4">
+              <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Name</label>
+                    <p className="text-sm">{selectedBooking.first_name} {selectedBooking.last_name}</p>
+                  </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Service</label>
                     <p className="text-sm">{selectedBooking.service_title}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Price</label>
-                    <p className="text-sm">£{selectedBooking.price}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Customer</label>
-                    <p className="text-sm">{selectedBooking.first_name} {selectedBooking.last_name}</p>
+                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                    <p className="text-sm">{selectedBooking.email}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Phone</label>
                     <p className="text-sm">{selectedBooking.phone}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <p className="text-sm">{selectedBooking.email}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Location</label>
@@ -636,6 +748,10 @@ export default function BookingsPage() {
                     <p className="text-sm">{selectedBooking.time}</p>
                   </div>
                   <div>
+                    <label className="text-sm font-medium text-muted-foreground">Price</label>
+                    <p className="text-sm">£{selectedBooking.price}</p>
+                  </div>
+                  <div>
                     <label className="text-sm font-medium text-muted-foreground">Status</label>
                     <Badge className={statusColors[selectedBooking.status]}>
                       {selectedBooking.status}
@@ -648,20 +764,14 @@ export default function BookingsPage() {
                     </Badge>
                   </div>
                 </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsDetailsOpen(false)}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    onClick={() => window.location.href = `mailto:${selectedBooking.email}`}
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    Contact Customer
-                  </Button>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Additional Info</label>
+                  <div className="mt-2 space-y-2 text-sm">
+                    <p>Date of Birth: {selectedBooking.date_of_birth}</p>
+                    {selectedBooking.employer && <p>Employer: {selectedBooking.employer}</p>}
+                    {selectedBooking.license && <p>License: {selectedBooking.license}</p>}
+                    <p>Heard About Us: {selectedBooking.hear_about_us}</p>
+                  </div>
                 </div>
               </div>
             )}
