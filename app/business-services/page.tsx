@@ -145,18 +145,7 @@ export default function BusinessServices() {
                       ))}
                     </ul>
                     <div className="mt-6">
-                      <p className="text-sm text-muted-foreground mb-3">{service.location}</p>
-                      <Button asChild variant="outline" size="sm">
-                        <Link 
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(service.location)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center"
-                        >
-                          <Building2 className="mr-2 h-4 w-4" />
-                          View on Maps
-                        </Link>
-                      </Button>
+                      <p className="text-sm text-muted-foreground">{service.location}</p>
                     </div>
                   </div>
                 </div>
